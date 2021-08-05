@@ -44,6 +44,15 @@ class WelcomeViewController: UIViewController {
     }
     
     private func handleSignIn(success: Bool) {
+        guard success else {
+            let alert = UIAlertController(title: "認証エラー", message: "Spotifyアカウントへのサインインに失敗しました", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "閉じる", style: .cancel, handler: nil))
+            present(alert, animated: true)
+            return
+        }
         
+        let mainAppTabBarVC = TabBarController()
+        mainAppTabBarVC.modalPresentationStyle = .fullScreen
+        present(mainAppTabBarVC, animated: true)
     }
 }
