@@ -8,17 +8,21 @@
 import Foundation
 
 final class AuthManager {
-    static let tokenAPIURL = "https://accounts.spotify.com/api/token"
-    static let scopes = "user-read-private%20playlist-modify-public%20playlist-read-private%20playlist-modify-private%20user-follow-read%20user-library-modify%20user-library-read%20user-read-email"
+    struct Constants {
+        static let tokenAPIURL = "https://accounts.spotify.com/api/token"
+        static let scopes = "user-read-private%20playlist-modify-public%20playlist-read-private%20playlist-modify-private%20user-follow-read%20user-library-modify%20user-library-read%20user-read-email"
+    }
+    
     static let shared = AuthManager()
     
     private init() {}
     
+    private var refreshingToken = false
     var signInURL: URL? {
         
 //            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         let base = "https://accounts.spotify.com/authorize"
-        let string = "\(base)?response_type=code&client_id=\(SPOTIFY_CLIENT_ID)&scope=\(AuthManager.scopes)&redirect_uri=\(REDIRECT_URI)"
+        let string = "\(base)?response_type=code&client_id=\(SPOTIFY_CLIENT_ID)&scope=\(Constants.scopes)&redirect_uri=\(REDIRECT_URI)"
         return URL(string: string)
     }
     
@@ -48,7 +52,7 @@ final class AuthManager {
     }
     
     public func exchangeCodeForToken(code: String, completion: @escaping (Bool) -> Void) {
-        guard let url = URL(string: AuthManager.tokenAPIURL) else { return }
+        guard let url = URL(string: Constants.tokenAPIURL) else { return }
         var components = URLComponents()
         components.queryItems = [
             URLQueryItem(name: "grant_type", value: "authorization_code"),
@@ -88,7 +92,29 @@ final class AuthManager {
         task.resume()
     }
     
+    private var onRefreshBlocks = [((String) -> Void)]()
+    
+    public func withValidToken(completion: @escaping (String) -> Void) {
+        guard !refreshingToken else {
+            onRefreshBlocks.append(completion)
+            return
+        }
+        
+        if shouldRefreshToken {
+            refreshIfNeeded { [weak self] success in
+                if let token = self?.accsssToken, success {
+                    completion(token)
+                }
+            }
+        } else if let token = accsssToken {
+            completion(token)
+        }
+    }
+    
     public func refreshIfNeeded(completion: @escaping (Bool) -> Void) {
+        guard !refreshingToken else {
+            return
+        }
         guard shouldRefreshToken else {
             completion(true)
             return
@@ -97,7 +123,9 @@ final class AuthManager {
             return
         }
         
-        guard let url = URL(string: AuthManager.tokenAPIURL) else { return }
+        guard let url = URL(string: Constants.tokenAPIURL) else { return }
+        
+        refreshingToken = true
         
         var components = URLComponents()
         components.queryItems = [
@@ -119,6 +147,7 @@ final class AuthManager {
         request.setValue("Basic \(base64String)", forHTTPHeaderField: "Authorization")
         request.httpBody = components.query?.data(using: .utf8)
         let task = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
+            self?.refreshingToken = false
             guard let data = data, error == nil else {
                 completion(false)
                 return
@@ -126,6 +155,8 @@ final class AuthManager {
             
             do {
                 let result = try JSONDecoder().decode(AuthResponse.self, from: data)
+                self?.onRefreshBlocks.forEach { $0(result.access_token)}
+                self?.onRefreshBlocks.removeAll()
                 self?.cacheToken(result: result)
                 completion(true)
             } catch {
