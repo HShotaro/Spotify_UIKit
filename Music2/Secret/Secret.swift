@@ -9,3 +9,4 @@ import Foundation
 
 let SPOTIFY_CLIENT_ID = ""
 let SPOTIFY_CLIENT_SECRET = ""
+let REDIRECT_URI = ""
