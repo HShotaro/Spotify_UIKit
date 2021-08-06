@@ -7,13 +7,12 @@
 
 import UIKit
 
-enum BrowseSectionType {
-    case newReleases
-    case featuredPlaylists
-    case recommendedTracks
-}
-
 class HomeViewController: UIViewController {
+    enum BrowseSectionType: CaseIterable {
+        case newReleases
+        case featuredPlaylists
+        case recommendedTracks
+    }
     private var collectionView : UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewCompositionalLayout { section, _ -> NSCollectionLayoutSection in
         return HomeViewController.createSectionLayout(section: section)
     })
@@ -163,28 +162,34 @@ class HomeViewController: UIViewController {
 
 extension HomeViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 3
+        return HomeViewController.BrowseSectionType.allCases.count
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 20
+        switch HomeViewController.BrowseSectionType.allCases[section] {
+        case .newReleases:
+            return 20
+        case .featuredPlaylists:
+            return 20
+        case .recommendedTracks:
+            return 20
+        }
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        switch indexPath.section {
-        case 0:
+        switch HomeViewController.BrowseSectionType.allCases[indexPath.section] {
+        case .newReleases:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NewReleaseCollectionViewCell.identifier, for: indexPath)
             cell.backgroundColor = .systemGreen
             return cell
-        case 1:
+        case .featuredPlaylists:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeaturedPlaylistCollectionViewCell.identifier, for: indexPath)
             cell.backgroundColor = .systemBlue
             return cell
-        case 2:
+        case .recommendedTracks:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RecommendedTrackCollectionViewCell.identifier, for: indexPath)
             cell.backgroundColor = .systemOrange
             return cell
-        default:
-            return UICollectionViewCell()
         }
     }
     
