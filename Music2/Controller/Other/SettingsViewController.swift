@@ -21,7 +21,7 @@ class SettingsViewController: UIViewController {
         super.viewDidLoad()
         confugureModels()
         title = "Settings"
-        view.backgroundColor = UIColor.systemBackground
+        view.backgroundColor = UIColor.viewBackground
         view.addSubview(tableView)
         tableView.dataSource = self
         tableView.delegate = self

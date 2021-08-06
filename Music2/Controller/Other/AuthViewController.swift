@@ -23,7 +23,7 @@ class AuthViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Sign In"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = UIColor.viewBackground
         webView.navigationDelegate = self
         view.addSubview(webView)
         guard let url = AuthManager.shared.signInURL else { return }

@@ -21,7 +21,7 @@ class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Profile"
-        view.backgroundColor = UIColor.systemBackground
+        view.backgroundColor = UIColor.viewBackground
         tableView.dataSource = self
         tableView.delegate = self
         fetchProfile()
