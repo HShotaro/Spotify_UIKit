@@ -91,7 +91,7 @@ class HomeViewController: UIViewController {
             )
             // Section
             let section = NSCollectionLayoutSection(group: horizontalGroup)
-            section.orthogonalScrollingBehavior = .continuous
+            section.orthogonalScrollingBehavior = .groupPaging
             section.boundarySupplementaryItems = supplementaryViews
             return section
         case 1:
@@ -325,4 +325,20 @@ extension HomeViewController: UICollectionViewDelegate {
             break
         }
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
+            if let cell = collectionView.cellForItem(at: indexPath) {
+                UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.8, options: .curveLinear, animations: {
+                    cell.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
+                }, completion: nil)
+            }
+        }
+        
+        func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
+            if let cell = collectionView.cellForItem(at: indexPath) {
+                UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.8, options: .curveLinear, animations: {
+                    cell.transform = CGAffineTransform(scaleX: 1, y: 1)
+                }, completion: nil)
+            }
+        }
 }
