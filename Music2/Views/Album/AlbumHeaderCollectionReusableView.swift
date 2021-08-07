@@ -1,5 +1,5 @@
 //
-//  PlaylistHeaderCollectionReusableView.swift
+//  AlbumHeaderCollectionReusableView.swift
 //  Music2
 //
 //  Created by 平野翔太郎 on 2021/08/07.
@@ -7,14 +7,14 @@
 
 import UIKit
 
-protocol PlaylistHeaderCollectionReusableViewDelegate: AnyObject {
-    func playlistHeaderCollectionReusableViewDidTapPlayAll(_ header: PlaylistHeaderCollectionReusableView)
+protocol AlbumHeaderCollectionReusableViewDelegate: AnyObject {
+    func AlbumHeaderCollectionReusableViewDidTapPlayAll(_ header: AlbumHeaderCollectionReusableView)
 }
 
-final class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
-    static let identifier = String(describing: PlaylistHeaderCollectionReusableView.self)
+final class AlbumHeaderCollectionReusableView: UICollectionReusableView {
+    static let identifier = String(describing: AlbumHeaderCollectionReusableView.self)
     
-    weak var delegate: PlaylistHeaderCollectionReusableViewDelegate?
+    weak var delegate: AlbumHeaderCollectionReusableViewDelegate?
     
     private let nameLabel: UILabel = {
         let label = UILabel()
@@ -71,7 +71,7 @@ final class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
     }
     
     @objc private func didTapAll() {
-        delegate?.playlistHeaderCollectionReusableViewDidTapPlayAll(self)
+        delegate?.AlbumHeaderCollectionReusableViewDidTapPlayAll(self)
     }
 
     override func layoutSubviews() {
@@ -84,7 +84,7 @@ final class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
         playAllButton.frame = CGRect(x: width-75, y: height-75, width: 60, height: 60)
     }
     
-    func configure(with viewModel: PlaylistHeaderViewViewModel?) {
+    func configure(with viewModel: AlbumHeaderViewViewModel?) {
         nameLabel.text = viewModel?.name
         descriptionLabel.text = viewModel?.description
         ownerLabel.text = viewModel?.ownerName

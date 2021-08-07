@@ -19,14 +19,14 @@ class PlaylistCollectionViewCell: UICollectionViewCell {
     
     private let trackNameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 19, weight: .regular)
+        label.font = .systemFont(ofSize: 18, weight: .regular)
         label.numberOfLines = 1
         return label
     }()
     
     private let artistNameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .thin)
+        label.font = .systemFont(ofSize: 13, weight: .thin)
         label.numberOfLines = 1
         return label
     }()
@@ -59,15 +59,15 @@ class PlaylistCollectionViewCell: UICollectionViewCell {
             width: imageSize,
             height: imageSize
         )
-        artistNameLabel.frame = CGRect(x: artworkImageView.right + 5,
+        trackNameLabel.frame = CGRect(x: artworkImageView.right + 5,
                                         y: 10,
                                         width: contentView.width-artworkImageView.right-15,
                                         height: 20
         )
-        trackNameLabel.frame = CGRect(x: artworkImageView.right + 5,
-                                        y: contentView.height-30,
+        artistNameLabel.frame = CGRect(x: artworkImageView.right + 5,
+                                        y: contentView.height-25,
                                         width: contentView.width-artworkImageView.right-15,
-                                        height: 20
+                                        height: 15
         )
     }
     

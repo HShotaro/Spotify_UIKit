@@ -229,7 +229,7 @@ class HomeViewController: UIViewController {
         }
     }
     
-    var newAlbumIDs = [String]()
+    var newAlbumIDs = [(id: String, releaseDate: String)]()
     var playlistIDs = [String]()
     var tracks = [AudioTrack]()
     
@@ -238,7 +238,7 @@ class HomeViewController: UIViewController {
         playlists: [Playlist],
         tracks: [AudioTrack]
     ) {
-        self.newAlbumIDs = newAlbums.map { $0.id }
+        self.newAlbumIDs = newAlbums.map { (id: $0.id, releaseDate: $0.release_date) }
         self.playlistIDs = playlists.map { $0.id }
         self.tracks = tracks
         self.sections = [
@@ -312,8 +312,8 @@ extension HomeViewController: UICollectionViewDelegate {
         collectionView.deselectItem(at: indexPath, animated: true)
         switch sections[indexPath.section] {
         case .newReleases:
-            let albumID = newAlbumIDs[indexPath.row]
-            let vc = AlbumViewController(albumID: albumID)
+            let album = newAlbumIDs[indexPath.row]
+            let vc = AlbumViewController(albumID: album.id, releaseDate: album.releaseDate)
             vc.navigationItem.largeTitleDisplayMode = .never
             navigationController?.pushViewController(vc, animated: true)
         case .featuredPlaylists:
