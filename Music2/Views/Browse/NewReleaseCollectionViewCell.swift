@@ -91,7 +91,7 @@ class NewReleaseCollectionViewCell: UICollectionViewCell {
         albumNameLabel.text = nil
         artistNameLabel.text = nil
         numberOfTracksLabel.text = nil
-        albumCoverImageView.image = nil
+        albumCoverImageView.image = UIImage(systemName: "photo")
     }
     
     func configure(with viewModel: NewReleasesCellViewModel) {

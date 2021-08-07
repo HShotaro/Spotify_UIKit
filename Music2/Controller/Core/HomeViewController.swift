@@ -115,7 +115,6 @@ class HomeViewController: UIViewController {
             )
             // Section
             let section = NSCollectionLayoutSection(group: verticalGroup)
-            section.orthogonalScrollingBehavior = .none
             return section
         default:
             return NSCollectionLayoutSection.init(group: NSCollectionLayoutGroup.init(layoutSize: NSCollectionLayoutSize.init(widthDimension: .absolute(.zero), heightDimension: .absolute(.zero))))
