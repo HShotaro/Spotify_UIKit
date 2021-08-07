@@ -10,24 +10,19 @@ import UIKit
 class PlaylistViewController: UIViewController {
     private let playlistID: String
     
-    private let collectionView = UICollectionView.init(frame: .zero, collectionViewLayout: UICollectionViewCompositionalLayout.init(sectionProvider: { _, _ in
+    private let collectionView = UICollectionView.init(frame: .zero, collectionViewLayout: UICollectionViewCompositionalLayout(sectionProvider: { _, _ in
         // Item
-        let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.0 / 2)))
+        let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.0)))
         
-        item.contentInsets = NSDirectionalEdgeInsets(top: 2, leading: 2, bottom: 2, trailing: 2)
+        item.contentInsets = NSDirectionalEdgeInsets(top: 1, leading: 2, bottom: 1, trailing: 2)
         // Group
-        let horizontalGroup = NSCollectionLayoutGroup.horizontal(
-            layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.0 / 2)),
+        let group = NSCollectionLayoutGroup.vertical(
+            layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(60)),
             subitem: item,
-            count: 2
-        )
-        let verticalGroup = NSCollectionLayoutGroup.vertical(
-            layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.0 / 2)),
-            subitem: horizontalGroup,
             count: 1
         )
         // Section
-        let section = NSCollectionLayoutSection(group: verticalGroup)
+        let section = NSCollectionLayoutSection(group: group)
         section.boundarySupplementaryItems = [
             NSCollectionLayoutBoundarySupplementaryItem(
                 layoutSize: NSCollectionLayoutSize.init(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.0)),
@@ -47,7 +42,7 @@ class PlaylistViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private var viewModels = [RecommendedTrackCellViewModel]()
+    private var viewModels = [PlaylistCellViewModel]()
     private var headerViewModel: PlaylistHeaderViewViewModel?
     private var shareViewModel: (urlString: String, title: String)?
     
@@ -56,7 +51,7 @@ class PlaylistViewController: UIViewController {
         view.backgroundColor = UIColor.viewBackground
         view.addSubview(collectionView)
         collectionView.register(PlaylistHeaderCollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: PlaylistHeaderCollectionReusableView.identifier)
-        collectionView.register(RecommendedTrackCollectionViewCell.self, forCellWithReuseIdentifier: RecommendedTrackCollectionViewCell.identifier)
+        collectionView.register(PlaylistCollectionViewCell.self, forCellWithReuseIdentifier: PlaylistCollectionViewCell.identifier)
         collectionView.dataSource = self
         collectionView.delegate = self
         
@@ -83,11 +78,11 @@ class PlaylistViewController: UIViewController {
             switch result {
             case let .success(model):
                 self?.viewModels = model.tracks.items.compactMap({ playList in
-                    RecommendedTrackCellViewModel(name: playList.track.name, artistName: playList.track.artists.first?.name ?? "", artworkURL: URL(string: playList.track.album?.images.first?.url ?? ""))
+                    PlaylistCellViewModel(name: playList.track.name, artistName: playList.track.artists.first?.name ?? "", artworkURL: URL(string: playList.track.album?.images.first?.url ?? ""))
                 })
                 
                 self?.headerViewModel = PlaylistHeaderViewViewModel(name: model.name, ownerName: model.tracks.items.first?.track.artists.first?.name ?? "", description: model.description, artworkURL: URL(string: model.images.first?.url ?? ""))
-                self?.shareViewModel = (urlString: model.external_urls["spotify"] as? String ?? "", title: model.description)
+                self?.shareViewModel = (urlString: model.external_urls["spotify"] ?? "", title: model.description)
                 DispatchQueue.main.async {
                     self?.title = model.name
                     self?.collectionView.reloadData()
@@ -110,8 +105,7 @@ extension PlaylistViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RecommendedTrackCollectionViewCell.identifier, for: indexPath) as? RecommendedTrackCollectionViewCell else { return UICollectionViewCell() }
-        cell.backgroundColor = .systemRed
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PlaylistCollectionViewCell.identifier, for: indexPath) as? PlaylistCollectionViewCell else { return UICollectionViewCell() }
         cell.configure(with: viewModels[indexPath.row])
         return cell
     }
