@@ -1,17 +1,17 @@
 //
-//  PlaylistViewController.swift
+//  AlbumViewController.swift
 //  Music2
 //
-//  Created by 平野翔太郎 on 2021/08/05.
+//  Created by 平野翔太郎 on 2021/08/07.
 //
 
 import UIKit
 
-class PlaylistViewController: UIViewController {
-    private let playlistID: String
+class AlbumViewController: UIViewController {
+    private let albumID: String
     
-    init(playlistID: String) {
-        self.playlistID = playlistID
+    init(albumID: String) {
+        self.albumID = albumID
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -22,11 +22,12 @@ class PlaylistViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.viewBackground
+        
         fetchData()
     }
     
     private func fetchData() {
-        APICaller.shared.getPlaylistDetails(for: playlistID) { [weak self] result in
+        APICaller.shared.getAlbumDetails(for: albumID) { [weak self] result in
             switch result {
             case let .success(model):
                 break
