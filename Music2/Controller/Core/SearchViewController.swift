@@ -39,6 +39,8 @@ class SearchViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.viewBackground
+        navigationItem.largeTitleDisplayMode = .always
+        navigationController?.navigationBar.prefersLargeTitles = true
         searchController.searchResultsUpdater = self
         navigationItem.searchController = searchController
         (searchController.searchResultsController as? SearchResultViewController)?.delegate = self
@@ -157,7 +159,7 @@ extension SearchViewController: SearchResultViewControllerDelegate {
             vc.navigationItem.largeTitleDisplayMode = .never
             navigationController?.pushViewController(vc, animated: true)
         case let .track(track):
-            break
+            PlaybackPresenter.startPlayback(from: self, track: track)
         case let .playlist(playlist):
             let vc = PlaylistViewController(playlistID: playlist.id)
             vc.navigationItem.largeTitleDisplayMode = .never

@@ -42,6 +42,7 @@ class PlaylistViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private var tracks = [AudioTrack]()
     private var viewModels = [PlaylistCellViewModel]()
     private var headerViewModel: PlaylistHeaderViewViewModel?
     private var shareViewModel: (urlString: String, title: String)?
@@ -77,6 +78,7 @@ class PlaylistViewController: UIViewController {
         APICaller.shared.getPlaylistDetails(for: playlistID) { [weak self] result in
             switch result {
             case let .success(model):
+                self?.tracks = model.tracks.items.compactMap({ $0.track})
                 self?.viewModels = model.tracks.items.compactMap({ playList in
                     PlaylistCellViewModel(name: playList.track.name, artistName: playList.track.artists?.first?.name ?? "", artworkURL: URL(string: playList.track.album?.images?.first?.url ?? ""))
                 })
@@ -123,12 +125,16 @@ extension PlaylistViewController: UICollectionViewDataSource {
 extension PlaylistViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        // Play Song
+        let track = tracks[indexPath.row]
+        PlaybackPresenter.startPlayback(from: self, track: track)
     }
 }
 
 extension PlaylistViewController: PlaylistHeaderCollectionReusableViewDelegate {
     func playlistHeaderCollectionReusableViewDidTapPlayAll(_ header: PlaylistHeaderCollectionReusableView) {
-        // Start play list play in queue
+        PlaybackPresenter.startPlayback(
+            from: self,
+            tracks: tracks
+        )
     }
 }

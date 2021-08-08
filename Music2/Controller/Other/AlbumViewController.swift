@@ -44,6 +44,7 @@ class AlbumViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private var tracks = [AudioTrack]()
     private var viewModels = [AlbumCellViewModel]()
     private var headerViewModel: AlbumHeaderViewViewModel?
     private var shareViewModel: (urlString: String, title: String)?
@@ -71,6 +72,7 @@ class AlbumViewController: UIViewController {
         APICaller.shared.getAlbumDetails(for: albumID) { [weak self] result in
             switch result {
             case let .success(model):
+                self?.tracks = model.tracks.items
                 self?.viewModels = model.tracks.items.compactMap({ audioTracks in
                     AlbumCellViewModel(name: audioTracks.name ?? "", artistName: audioTracks.artists?.first?.name ?? "-")
                 })
@@ -127,12 +129,20 @@ extension AlbumViewController: UICollectionViewDataSource {
 extension AlbumViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        // Play Song
+        let track = tracks[indexPath.row]
+        
+        PlaybackPresenter.startPlayback(
+            from: self,
+            track: track
+        )
     }
 }
 
 extension AlbumViewController: AlbumHeaderCollectionReusableViewDelegate {
     func AlbumHeaderCollectionReusableViewDidTapPlayAll(_ header: AlbumHeaderCollectionReusableView) {
-        // Start play list play in queue
+        PlaybackPresenter.startPlayback(
+            from: self,
+            tracks: tracks
+        )
     }
 }
