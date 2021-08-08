@@ -7,16 +7,25 @@
 
 import UIKit
 
+protocol PlayerViewControllerDelegate: AnyObject {
+    func didTapPlayPause()
+    func didTapNext()
+    func didTapBack()
+    func didSlideSlider(_ value: Float)
+}
+
 class PlayerViewController: UIViewController {
+    
+    weak var delegate: PlayerViewControllerDelegate?
 
     private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
-        imageView.backgroundColor = .systemBlue
         return imageView
     }()
     
     private let controlsView = PlayerControlsView()
+    var audioTrackID: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,8 +33,9 @@ class PlayerViewController: UIViewController {
         view.addSubview(imageView)
         view.addSubview(controlsView)
         controlsView.delegate = self
-        
         configureBarButtons()
+        
+        imageView.clipsToBounds = true
     }
 
     override func viewWillLayoutSubviews() {
@@ -39,33 +49,38 @@ class PlayerViewController: UIViewController {
         )
         
         let imageSize: CGFloat = min(view.width, view.height-view.safeAreaInsets.bottom-view.safeAreaInsets.top-300)
-        imageView.frame = CGRect(x: (view.width-imageSize)/2, y: view.safeAreaInsets.top, width: imageSize, height: imageSize)
+        imageView.frame = CGRect(x: 0, y: view.safeAreaInsets.top, width: view.width, height: imageSize)
+    }
+    
+    func refreshUI(audioTrack: AudioTrack?) {
+        self.audioTrackID = audioTrack?.id
+        imageView.sd_setImage(with: URL(string: audioTrack?.album?.images?.first?.url ?? ""), completed: nil)
+        controlsView.configure(with: PlayerControlsViewViewModel(title: audioTrack?.name, subTitle: audioTrack?.artists?.first?.name))
     }
     
     private func configureBarButtons() {
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(didTapClose))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(didTapAction))
     }
     
     @objc private func didTapClose() {
-        dismiss(animated: true, completion: nil)
-    }
-    
-    @objc private func didTapAction() {
         dismiss(animated: true, completion: nil)
     }
 }
 
 extension PlayerViewController: PlayerControlsViewDelegate {
     func playerControlsViewDidTapPlayPauseButton(_ playerControlsView: PlayerControlsView) {
-        
+        delegate?.didTapPlayPause()
     }
     
     func playerControlsViewDidTapNextButton(_ playerControlsView: PlayerControlsView) {
-        
+        delegate?.didTapNext()
     }
     
     func playerControlsViewDidTapBackButton(_ playerControlsView: PlayerControlsView) {
-        
+        delegate?.didTapBack()
+    }
+    
+    func playerControlsView(_ playerControlsView: PlayerControlsView, didSlideSlider value: Float) {
+        delegate?.didSlideSlider(value)
     }
 }

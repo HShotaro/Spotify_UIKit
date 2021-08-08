@@ -11,13 +11,17 @@ protocol PlayerControlsViewDelegate: AnyObject {
     func playerControlsViewDidTapPlayPauseButton(_ playerControlsView: PlayerControlsView)
     func playerControlsViewDidTapNextButton(_ playerControlsView: PlayerControlsView)
     func playerControlsViewDidTapBackButton(_ playerControlsView: PlayerControlsView)
+    func playerControlsView(_ playerControlsView: PlayerControlsView, didSlideSlider value: Float)
 }
 
 final class PlayerControlsView: UIView {
     weak var delegate: PlayerControlsViewDelegate?
+    
+    private var isPlaying = true
+    
     private let volumeSlider: UISlider = {
         let slider = UISlider()
-        slider.value = 0.5
+        slider.value = 0.1
         return slider
     }()
     
@@ -26,7 +30,6 @@ final class PlayerControlsView: UIView {
         label.numberOfLines = 1
         label.font = .systemFont(ofSize: 20, weight: .semibold)
         label.textColor = .label
-        label.textAlignment = .center
         return label
     }()
     
@@ -81,6 +84,8 @@ final class PlayerControlsView: UIView {
         nextButton.addTarget(self, action: #selector(didTapNext), for: .touchUpInside)
         playPauseButton.addTarget(self, action: #selector(didTapPause), for: .touchUpInside)
         
+        volumeSlider.addTarget(self, action: #selector(didSlideSlider(_:)), for: .valueChanged)
+        
         clipsToBounds = true
         
     }
@@ -94,19 +99,28 @@ final class PlayerControlsView: UIView {
     }
     
     @objc private func didTapPause() {
+        self.isPlaying = !self.isPlaying
         delegate?.playerControlsViewDidTapPlayPauseButton(self)
+        
+        let pause = UIImage(systemName: "pause", withConfiguration: UIImage.SymbolConfiguration(pointSize: 34, weight: .regular))
+        let play = UIImage(systemName: "play.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 34, weight: .regular))
+        
+        playPauseButton.setImage(isPlaying ? pause : play, for: .normal)
     }
     
     @objc private func didTapNext() {
         delegate?.playerControlsViewDidTapNextButton(self)
     }
     
-    
+    @objc private func didSlideSlider(_ slider: UISlider) {
+        let value = slider.value
+        delegate?.playerControlsView(self, didSlideSlider: value)
+    }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        nameLabel.frame = CGRect(x: 0, y: 0, width: width, height: 50)
-        subtitleLabel.frame = CGRect(x: 0, y: nameLabel.bottom+10, width: width, height: 50)
+        nameLabel.frame = CGRect(x: 10, y: 0, width: width-20, height: 50)
+        subtitleLabel.frame = CGRect(x: 10, y: nameLabel.bottom+10, width: width-20, height: 50)
         
         volumeSlider.frame = CGRect(x: 10, y: subtitleLabel.bottom+20, width: width-20, height: 44)
         
@@ -114,5 +128,10 @@ final class PlayerControlsView: UIView {
         playPauseButton.frame = CGRect(x: (width - buttonSize) / 2, y: volumeSlider.bottom+30, width: buttonSize, height: buttonSize)
         backButton.frame = CGRect(x: playPauseButton.left-50-buttonSize, y: playPauseButton.top, width: buttonSize, height: buttonSize)
         nextButton.frame = CGRect(x: playPauseButton.right+50, y: playPauseButton.top, width: buttonSize, height: buttonSize)
+    }
+    
+    func configure(with viewModel: PlayerControlsViewViewModel) {
+        nameLabel.text = viewModel.title
+        subtitleLabel.text = viewModel.subTitle
     }
 }

@@ -155,11 +155,11 @@ extension SearchViewController: SearchResultViewControllerDelegate {
             let vc = SFSafariViewController(url: url)
             present(vc, animated: true, completion: nil)
         case let .album(album):
-            let vc = AlbumViewController(albumID: album.id, releaseDate: album.release_date ?? "")
+            let vc = AlbumViewController(album: album)
             vc.navigationItem.largeTitleDisplayMode = .never
             navigationController?.pushViewController(vc, animated: true)
         case let .track(track):
-            PlaybackPresenter.startPlayback(from: self, track: track)
+            PlaybackPresenter.shared.startPlayback(from: self, track: track)
         case let .playlist(playlist):
             let vc = PlaylistViewController(playlistID: playlist.id)
             vc.navigationItem.largeTitleDisplayMode = .never

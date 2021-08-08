@@ -31,12 +31,10 @@ class AlbumViewController: UIViewController {
         return section
     }))
     
-    private let albumID: String
-    private let releaseDate: String
+    private let album: Album
     
-    init(albumID: String, releaseDate: String) {
-        self.albumID = albumID
-        self.releaseDate = releaseDate
+    init(album: Album) {
+        self.album = album
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -69,15 +67,15 @@ class AlbumViewController: UIViewController {
     }
     
     private func fetchData() {
-        APICaller.shared.getAlbumDetails(for: albumID) { [weak self] result in
+        APICaller.shared.getAlbumDetails(for: album.id) { [weak self] result in
             switch result {
             case let .success(model):
                 self?.tracks = model.tracks.items
                 self?.viewModels = model.tracks.items.compactMap({ audioTracks in
-                    AlbumCellViewModel(name: audioTracks.name ?? "", artistName: audioTracks.artists?.first?.name ?? "-")
+                    AlbumCellViewModel(name: audioTracks.name , artistName: audioTracks.artists?.first?.name ?? "-")
                 })
                 
-                self?.headerViewModel = AlbumHeaderViewViewModel(name: model.name, ownerName: model.artists.first?.name ?? "-", description: "Release Date: \(String.formattedDate(string: self?.releaseDate ?? ""))", artworkURL: URL(string: model.images.first?.url ?? ""))
+                self?.headerViewModel = AlbumHeaderViewViewModel(name: model.name, ownerName: model.artists.first?.name ?? "-", description: "Release Date: \(String.formattedDate(string: self?.album.release_date ?? ""))", artworkURL: URL(string: model.images.first?.url ?? ""))
                 self?.shareViewModel = (urlString: model.external_urls["spotify"] ?? "", title: model.name)
                 DispatchQueue.main.async {
                     self?.title = model.name
@@ -131,7 +129,7 @@ extension AlbumViewController: UICollectionViewDelegate {
         collectionView.deselectItem(at: indexPath, animated: true)
         let track = tracks[indexPath.row]
         
-        PlaybackPresenter.startPlayback(
+        PlaybackPresenter.shared.startPlayback(
             from: self,
             track: track
         )
@@ -140,9 +138,14 @@ extension AlbumViewController: UICollectionViewDelegate {
 
 extension AlbumViewController: AlbumHeaderCollectionReusableViewDelegate {
     func AlbumHeaderCollectionReusableViewDidTapPlayAll(_ header: AlbumHeaderCollectionReusableView) {
-        PlaybackPresenter.startPlayback(
+        let tracksWithAlbum: [AudioTrack] = tracks.compactMap { track in
+            var t = track
+            t.album = self.album
+            return t
+        }
+        PlaybackPresenter.shared.startPlayback(
             from: self,
-            tracks: tracks
+            tracks: tracksWithAlbum
         )
     }
 }
