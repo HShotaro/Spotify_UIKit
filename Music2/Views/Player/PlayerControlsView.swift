@@ -30,6 +30,7 @@ final class PlayerControlsView: UIView {
         label.numberOfLines = 1
         label.font = .systemFont(ofSize: 20, weight: .semibold)
         label.textColor = .label
+        label.textAlignment = .center
         return label
     }()
     
@@ -38,6 +39,7 @@ final class PlayerControlsView: UIView {
         label.numberOfLines = 1
         label.font = .systemFont(ofSize: 18, weight: .regular)
         label.textColor = .secondaryLabel
+        label.textAlignment = .center
         return label
     }()
     
@@ -119,10 +121,10 @@ final class PlayerControlsView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        nameLabel.frame = CGRect(x: 10, y: 0, width: width-20, height: 50)
+        nameLabel.frame = CGRect(x: 10, y: 10, width: width-20, height: 25)
         subtitleLabel.frame = CGRect(x: 10, y: nameLabel.bottom+10, width: width-20, height: 50)
         
-        volumeSlider.frame = CGRect(x: 10, y: subtitleLabel.bottom+20, width: width-20, height: 44)
+        volumeSlider.frame = CGRect(x: 10, y: subtitleLabel.bottom+20, width: width-20, height: 20)
         
         let buttonSize: CGFloat = 60
         playPauseButton.frame = CGRect(x: (width - buttonSize) / 2, y: volumeSlider.bottom+30, width: buttonSize, height: buttonSize)

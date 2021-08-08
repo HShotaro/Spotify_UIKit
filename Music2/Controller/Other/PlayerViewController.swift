@@ -20,7 +20,7 @@ class PlayerViewController: UIViewController {
 
     private let imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleAspectFit
         return imageView
     }()
     
@@ -42,12 +42,12 @@ class PlayerViewController: UIViewController {
         
         controlsView.frame = CGRect(
             x: 10,
-            y: view.height-view.safeAreaInsets.bottom-300,
+            y: view.height-view.safeAreaInsets.bottom-250,
             width: view.width-20,
-            height: 300
+            height: 250
         )
         
-        let imageSize: CGFloat = min(view.width, view.height-view.safeAreaInsets.bottom-view.safeAreaInsets.top-300)
+        let imageSize: CGFloat = min(view.width, view.height-view.safeAreaInsets.bottom-view.safeAreaInsets.top-250)
         imageView.frame = CGRect(x: 0, y: view.safeAreaInsets.top, width: view.width, height: imageSize)
     }
     

@@ -11,6 +11,7 @@ import AVFoundation
 final class PlaybackPresenter {
     init() {
         NotificationCenter.default.addObserver(self, selector: #selector(itemDidPlayToEnd), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+        
     }
     
     deinit {
