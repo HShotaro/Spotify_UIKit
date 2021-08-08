@@ -25,7 +25,6 @@ class PlayerViewController: UIViewController {
     }()
     
     private let controlsView = PlayerControlsView()
-    var audioTrackID: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,7 +52,6 @@ class PlayerViewController: UIViewController {
     }
     
     func refreshUI(audioTrack: AudioTrack?) {
-        self.audioTrackID = audioTrack?.id
         imageView.sd_setImage(with: URL(string: audioTrack?.album?.images?.first?.url ?? ""), completed: nil)
         controlsView.configure(with: PlayerControlsViewViewModel(title: audioTrack?.name, subTitle: audioTrack?.artists?.first?.name))
     }

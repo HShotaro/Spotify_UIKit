@@ -8,8 +8,6 @@
 import UIKit
 
 class PlaylistViewController: UIViewController {
-    private let playlistID: String
-    
     private let collectionView = UICollectionView.init(frame: .zero, collectionViewLayout: UICollectionViewCompositionalLayout(sectionProvider: { _, _ in
         // Item
         let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.0)))
@@ -33,8 +31,15 @@ class PlaylistViewController: UIViewController {
         return section
     }))
     
-    init(playlistID: String) {
-        self.playlistID = playlistID
+    enum Attribute {
+        case playlist(id: String)
+        case artist(id: String)
+    }
+    
+    let attribute: Attribute
+    
+    init(attribute: Attribute) {
+        self.attribute = attribute
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -57,7 +62,13 @@ class PlaylistViewController: UIViewController {
         collectionView.delegate = self
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(didTapShare))
-        fetchData()
+        switch attribute {
+        case let .playlist(id):
+            fetchPlaylistData(playlistID: id)
+        case let .artist(id):
+            fetchArtistTopTracksData(artistID: id)
+        }
+        
     }
     
     @objc private func didTapShare() {
@@ -74,7 +85,7 @@ class PlaylistViewController: UIViewController {
         collectionView.frame = view.bounds
     }
     
-    private func fetchData() {
+    private func fetchPlaylistData(playlistID: String) {
         APICaller.shared.getPlaylistDetails(for: playlistID) { [weak self] result in
             switch result {
             case let .success(model):
@@ -91,7 +102,32 @@ class PlaylistViewController: UIViewController {
                 }
             case let .failure(error):
                 guard let alert = self?.generateAlert(error: error, retryHandler: {
-                    self?.fetchData()
+                    self?.fetchPlaylistData(playlistID: playlistID)
+                }) else { return }
+                DispatchQueue.main.async {
+                    self?.present(alert, animated: true, completion: nil)
+                }
+            }
+        }
+    }
+    
+    private func fetchArtistTopTracksData(artistID: String) {
+        APICaller.shared.getArtistTopTracksData(for: artistID) { [weak self] result in
+            switch result {
+            case let .success(model):
+                self?.tracks = model
+                self?.viewModels = model.compactMap({ track in
+                    PlaylistCellViewModel(name: track.name, artistName: track.artists?.first?.name ?? "", artworkURL: URL(string: track.album?.images?.first?.url ?? ""))
+                })
+                self?.headerViewModel = PlaylistHeaderViewViewModel(name: model.first?.name, ownerName: model.first?.artists?.first?.name, description: "", artworkURL: URL(string: model.first?.album?.images?.first?.url ?? ""))
+                self?.shareViewModel = (urlString: model.first?.external_urls?["spotify"] ?? "", title: model.description)
+                DispatchQueue.main.async {
+                    self?.title = self?.tracks.first?.artists?.first?.name
+                    self?.collectionView.reloadData()
+                }
+            case let .failure(error):
+                guard let alert = self?.generateAlert(error: error, retryHandler: {
+                    self?.fetchArtistTopTracksData(artistID: artistID)
                 }) else { return }
                 DispatchQueue.main.async {
                     self?.present(alert, animated: true, completion: nil)

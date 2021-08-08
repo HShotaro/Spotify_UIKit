@@ -63,6 +63,25 @@ final class APICaller {
         }
     }
     
+    public func getArtistTopTracksData(for artistID: String, completion: @escaping (Result<[AudioTrack], Error>) -> Void) {
+        createRequest(with: URL(string: Constants.baseURL + "/artists/\(artistID)/top-tracks?market=JP"), type: .GET) { request in
+            let task = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
+                guard let data = data, error == nil else {
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do {
+                    let result = try JSONDecoder().decode(ArtistTopTracksDataResponse.self, from: data)
+                    completion(.success(result.tracks))
+                } catch {
+                    print(error.localizedDescription)
+                    completion(.failure(error))
+                }
+            }
+            task.resume()
+        }
+    }
+    
     // MARK: - profile
     
     public func getCurrentUserProfile(completion: @escaping (Result<UserProfile, Error>) -> Void) {

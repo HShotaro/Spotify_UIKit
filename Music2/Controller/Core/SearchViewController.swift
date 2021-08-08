@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SafariServices
 
 class SearchViewController: UIViewController {
 
@@ -151,9 +150,9 @@ extension SearchViewController: SearchResultViewControllerDelegate {
     func didSelectResult(_ result: SearchResult) {
         switch result {
         case let .artist(artist):
-            guard let url = URL(string: artist.external_urls?["spotify"] ?? "") else { return }
-            let vc = SFSafariViewController(url: url)
-            present(vc, animated: true, completion: nil)
+            let vc = PlaylistViewController(attribute: .artist(id: artist.id))
+            vc.navigationItem.largeTitleDisplayMode = .never
+            navigationController?.pushViewController(vc, animated: true)
         case let .album(album):
             let vc = AlbumViewController(album: album)
             vc.navigationItem.largeTitleDisplayMode = .never
@@ -161,7 +160,7 @@ extension SearchViewController: SearchResultViewControllerDelegate {
         case let .track(track):
             PlaybackPresenter.shared.startPlayback(from: self, track: track)
         case let .playlist(playlist):
-            let vc = PlaylistViewController(playlistID: playlist.id)
+            let vc = PlaylistViewController(attribute: .playlist(id: playlist.id))
             vc.navigationItem.largeTitleDisplayMode = .never
             navigationController?.pushViewController(vc, animated: true)
         }

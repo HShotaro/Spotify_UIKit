@@ -19,19 +19,26 @@ final class PlaybackPresenter {
     
     
     @objc private func itemDidPlayToEnd() {
-        if playerQueue != nil, let currentID = playerVC?.audioTrackID {
+        if playerQueue != nil, let currentID = audioTrackID {
             guard let index = (tracks.firstIndex { $0.id == currentID}),
                   index + 1 < tracks.count else {
-                playerQueue = nil
+                let items: [AVPlayerItem] = tracks.compactMap {
+                    guard let url = URL(string: $0.preview_url ?? "") else { return nil }
+                    return AVPlayerItem(url: url)
+                }
+                playerQueue = AVQueuePlayer(items: items)
+                playerQueue?.play()
                 return
             }
             playerQueue?.advanceToNextItem()
+            self.audioTrackID = tracks[index+1].id
             playerVC?.refreshUI(audioTrack: tracks[index+1])
         }
         
     }
     static let shared = PlaybackPresenter()
     
+    private var audioTrackID: String?
     private var tracks = [AudioTrack]()
     
     var playerVC: PlayerViewController?
@@ -42,17 +49,16 @@ final class PlaybackPresenter {
         track: AudioTrack
     ) {
         guard let url = URL(string: track.preview_url ?? "") else { return }
-        playerVC = nil
         playerQueue = nil
         
         self.tracks = [track]
         playerQueue = AVQueuePlayer(url: url)
-        playerQueue?.volume = 0.1
         let vc = PlayerViewController()
         vc.delegate = self
         let nav = NavigationController.init(rootViewController: vc)
         viewController.present(nav, animated: true) { [weak self] in
             self?.playerQueue?.play()
+            self?.audioTrackID = track.id
             vc.refreshUI(audioTrack: track)
             self?.playerVC = vc
         }
@@ -63,24 +69,32 @@ final class PlaybackPresenter {
         from viewController: UIViewController,
         tracks: [AudioTrack]
     ) {
-        playerVC = nil
-        playerQueue = nil
-        self.tracks = tracks.filter{ URL(string: $0.preview_url ?? "") != nil }
-        
-        let items: [AVPlayerItem] = tracks.compactMap {
-            guard let url = URL(string: $0.preview_url ?? "") else { return nil }
-            return AVPlayerItem(url: url)
+        let tracks = tracks.filter{ URL(string: $0.preview_url ?? "") != nil }
+        let isSameOfPrevTracks = tracks == self.tracks
+        if !isSameOfPrevTracks {
+            playerQueue = nil
+            self.tracks = tracks
+            let items: [AVPlayerItem] = tracks.compactMap {
+                guard let url = URL(string: $0.preview_url ?? "") else { return nil }
+                return AVPlayerItem(url: url)
+            }
+            self.playerQueue = AVQueuePlayer(items: items)
         }
-        self.playerQueue?.volume = 0.1
-        self.playerQueue = AVQueuePlayer(items: items)
+        
         
         let vc = PlayerViewController()
         vc.delegate = self
         let nav = NavigationController.init(rootViewController: vc)
         viewController.present(nav, animated: true) { [weak self] in
             self?.playerQueue?.play()
-            vc.refreshUI(audioTrack: tracks.first)
             self?.playerVC = vc
+            if isSameOfPrevTracks {
+                let track = tracks.first { $0.id == self?.audioTrackID }
+                vc.refreshUI(audioTrack: track)
+            } else {
+                vc.refreshUI(audioTrack: tracks.first)
+                self?.audioTrackID = tracks.first?.id
+            }
         }
     }
 }
@@ -97,17 +111,18 @@ extension PlaybackPresenter: PlayerViewControllerDelegate {
     }
     
     func didTapNext() {
-        if playerQueue != nil, let currentID = playerVC?.audioTrackID {
+        if playerQueue != nil, let currentID = audioTrackID {
             guard let index = (tracks.firstIndex { $0.id == currentID}),
                   index + 1 < tracks.count else { return }
             playerQueue?.advanceToNextItem()
+            self.audioTrackID = tracks[index+1].id
             playerVC?.refreshUI(audioTrack: tracks[index+1])
         }
         
     }
     
     func didTapBack() {
-        if let currentItem = playerQueue?.currentItem, let currentID = playerVC?.audioTrackID {
+        if let currentItem = playerQueue?.currentItem, let currentID = audioTrackID {
             let index = tracks.firstIndex { $0.id == currentID } ?? 0
             let currentTrack = tracks[index]
             guard let url = URL(string: currentTrack.preview_url ?? "")
@@ -115,6 +130,7 @@ extension PlaybackPresenter: PlayerViewControllerDelegate {
             playerQueue?.insert(AVPlayerItem(url: url), after: currentItem)
             
             playerQueue?.remove(currentItem)
+            self.audioTrackID = currentTrack.id
             playerVC?.refreshUI(audioTrack: currentTrack)
         }
     }
