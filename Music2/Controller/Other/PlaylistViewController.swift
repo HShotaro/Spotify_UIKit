@@ -78,10 +78,10 @@ class PlaylistViewController: UIViewController {
             switch result {
             case let .success(model):
                 self?.viewModels = model.tracks.items.compactMap({ playList in
-                    PlaylistCellViewModel(name: playList.track.name, artistName: playList.track.artists.first?.name ?? "", artworkURL: URL(string: playList.track.album?.images.first?.url ?? ""))
+                    PlaylistCellViewModel(name: playList.track.name, artistName: playList.track.artists?.first?.name ?? "", artworkURL: URL(string: playList.track.album?.images?.first?.url ?? ""))
                 })
                 
-                self?.headerViewModel = PlaylistHeaderViewViewModel(name: model.name, ownerName: model.tracks.items.first?.track.artists.first?.name ?? "", description: model.description, artworkURL: URL(string: model.images.first?.url ?? ""))
+                self?.headerViewModel = PlaylistHeaderViewViewModel(name: model.name, ownerName: model.tracks.items.first?.track.artists?.first?.name ?? "", description: model.description, artworkURL: URL(string: model.images.first?.url ?? ""))
                 self?.shareViewModel = (urlString: model.external_urls["spotify"] ?? "", title: model.description)
                 DispatchQueue.main.async {
                     self?.title = model.name

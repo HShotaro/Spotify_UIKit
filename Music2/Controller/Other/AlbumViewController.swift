@@ -72,7 +72,7 @@ class AlbumViewController: UIViewController {
             switch result {
             case let .success(model):
                 self?.viewModels = model.tracks.items.compactMap({ audioTracks in
-                    AlbumCellViewModel(name: audioTracks.name, artistName: audioTracks.artists.first?.name ?? "-")
+                    AlbumCellViewModel(name: audioTracks.name ?? "", artistName: audioTracks.artists?.first?.name ?? "-")
                 })
                 
                 self?.headerViewModel = AlbumHeaderViewViewModel(name: model.name, ownerName: model.artists.first?.name ?? "-", description: "Release Date: \(String.formattedDate(string: self?.releaseDate ?? ""))", artworkURL: URL(string: model.images.first?.url ?? ""))

@@ -8,6 +8,6 @@
 import Foundation
 
 struct AlbumCellViewModel {
-    let name: String
-    let artistName: String
+    let name: String?
+    let artistName: String?
 }
