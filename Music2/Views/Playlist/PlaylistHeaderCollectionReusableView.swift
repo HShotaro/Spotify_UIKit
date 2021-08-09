@@ -18,22 +18,9 @@ final class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 22, weight: .semibold)
-        return label
-    }()
-    
-    private let descriptionLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.textColor = .secondaryLabel
-        label.numberOfLines = 0
-        return label
-    }()
-    
-    private let ownerLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .light)
-        label.textColor = .secondaryLabel
+        label.font = .systemFont(ofSize: 25, weight: .semibold)
+        label.textAlignment = .center
+        label.numberOfLines = 2
         return label
     }()
     
@@ -60,8 +47,6 @@ final class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
         backgroundColor = .systemBackground
         addSubview(imageView)
         addSubview(nameLabel)
-        addSubview(descriptionLabel)
-        addSubview(ownerLabel)
         addSubview(playAllButton)
         playAllButton.addTarget(self, action: #selector(didTapAll), for: .touchUpInside)
     }
@@ -78,16 +63,12 @@ final class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
         super.layoutSubviews()
         let imageSize: CGFloat = height/2
         imageView.frame = CGRect(x: (width-imageSize)/2, y: 20, width: imageSize, height: imageSize)
-        nameLabel.frame = CGRect(x: 10, y: imageView.bottom, width: width-20, height: 44)
-        descriptionLabel.frame = CGRect(x: 10, y: nameLabel.bottom, width: width-90, height: 55)
-        ownerLabel.frame = CGRect(x: 10, y: descriptionLabel.bottom, width: width-90, height: 30)
+        nameLabel.frame = CGRect(x: 10, y: imageView.bottom+10, width: width-20, height: 70)
         playAllButton.frame = CGRect(x: width-75, y: height-75, width: 60, height: 60)
     }
     
     func configure(with viewModel: PlaylistHeaderViewViewModel?) {
         nameLabel.text = viewModel?.name
-        descriptionLabel.text = viewModel?.description
-        ownerLabel.text = viewModel?.ownerName
         imageView.sd_setImage(with: viewModel?.artworkURL, completed: nil)
     }
 }

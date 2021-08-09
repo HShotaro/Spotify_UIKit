@@ -110,7 +110,7 @@ class PlaylistViewController: UIViewController {
                     PlaylistCellViewModel(name: playList.track.name, artistName: playList.track.artists?.first?.name ?? "", artworkURL: URL(string: playList.track.album?.images?.first?.url ?? ""))
                 })
                 
-                self?.headerViewModel = PlaylistHeaderViewViewModel(name: model.name, ownerName: model.tracks.items.first?.track.artists?.first?.name ?? "", description: model.description, artworkURL: URL(string: model.images.first?.url ?? ""))
+                self?.headerViewModel = PlaylistHeaderViewViewModel(name: model.name, artworkURL: URL(string: model.images.first?.url ?? ""))
                 self?.shareViewModel = (urlString: model.external_urls["spotify"] ?? "", title: model.description)
                 DispatchQueue.main.async {
                     self?.title = model.name

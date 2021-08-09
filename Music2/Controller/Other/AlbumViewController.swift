@@ -130,12 +130,14 @@ class AlbumViewController: UIViewController {
     @objc private func didTapActions() {
         let actionSheet = UIAlertController(title: album.name, message: "Actions", preferredStyle: .actionSheet)
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        actionSheet.addAction(UIAlertAction(title: "Save Album", style: .default, handler: { [weak self] _ in
-            self?.saveAlbum()
-        }))
+        
         if isOwner {
             actionSheet.addAction(UIAlertAction(title: "Delete Album", style: .destructive, handler: { [weak self] _ in
                 self?.deleteAlbum()
+            }))
+        } else {
+            actionSheet.addAction(UIAlertAction(title: "Save Album", style: .default, handler: { [weak self] _ in
+                self?.saveAlbum()
             }))
         }
         present(actionSheet, animated: true)
