@@ -132,6 +132,7 @@ extension LibraryPlaylistsViewController: UITableViewDataSource {
 
 extension LibraryPlaylistsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        HapticsManager.shared.vibrateForSelection()
         guard selectionHandler == nil else {
             selectionHandler?(playlists[indexPath.row])
             return

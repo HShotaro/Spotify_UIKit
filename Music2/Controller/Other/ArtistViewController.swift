@@ -127,6 +127,7 @@ class ArtistViewController: UIViewController {
             case .success:
                 let alert = UIAlertController(title: "", message: "Added \(track.name) to \(playlist.name)", preferredStyle: .alert)
                 DispatchQueue.main.async {
+                    HapticsManager.shared.vibrate(for: .success)
                     self?.present(alert, animated: true, completion: { [weak self] in
                         UIView.animate(withDuration: 0.1, delay: 0.3, options: .init()) {} completion: { finished in
                             alert.dismiss(animated: true, completion: nil)
@@ -138,6 +139,7 @@ class ArtistViewController: UIViewController {
                     self?.add(track: track, to: playlist)
                 }) else { return }
                 DispatchQueue.main.async {
+                    HapticsManager.shared.vibrate(for: .error)
                     self?.present(alert, animated: true, completion: nil)
                 }
             }
@@ -169,6 +171,7 @@ extension ArtistViewController: UICollectionViewDataSource {
 extension ArtistViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
+        HapticsManager.shared.vibrateForSelection()
         let track = tracks[indexPath.row]
         PlaybackPresenter.shared.startPlayback(from: self, track: track)
     }

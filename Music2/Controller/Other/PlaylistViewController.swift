@@ -133,6 +133,7 @@ class PlaylistViewController: UIViewController {
             case .success:
                 let alert = UIAlertController(title: "", message: "Removed \(track.name)", preferredStyle: .alert)
                 DispatchQueue.main.async {
+                    HapticsManager.shared.vibrate(for: .success)
                     self?.tracks.remove(at: indexPath.row)
                     self?.viewModels.remove(at: indexPath.row)
                     self?.collectionView.reloadData()
@@ -142,6 +143,7 @@ class PlaylistViewController: UIViewController {
                     self?.delete(track: track, from: playlistID, indexPath: indexPath)
                 }) else { return }
                 DispatchQueue.main.async {
+                    HapticsManager.shared.vibrate(for: .error)
                     self?.present(alert, animated: true, completion: nil)
                 }
             }
@@ -173,6 +175,7 @@ extension PlaylistViewController: UICollectionViewDataSource {
 extension PlaylistViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
+        HapticsManager.shared.vibrateForSelection()
         let track = tracks[indexPath.row]
         PlaybackPresenter.shared.startPlayback(from: self, track: track)
     }

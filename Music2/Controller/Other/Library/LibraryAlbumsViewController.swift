@@ -80,6 +80,7 @@ extension LibraryAlbumsViewController: UITableViewDataSource {
 
 extension LibraryAlbumsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        HapticsManager.shared.vibrateForSelection()
         guard selectionHandler == nil else {
             selectionHandler?(albumlist[indexPath.row])
             return

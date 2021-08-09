@@ -96,11 +96,13 @@ class AlbumViewController: UIViewController {
             switch result {
             case .success:
                 NotificationCenter.default.post(name: .MyAlbumDidChangeNotification, object: nil)
+                HapticsManager.shared.vibrate(for: .success)
             case let .failure(error):
                 guard let alert = self?.generateAlert(error: error, retryHandler: {
                     self?.saveAlbum()
                 }) else { return }
                 DispatchQueue.main.async {
+                    HapticsManager.shared.vibrate(for: .error)
                     self?.present(alert, animated: true, completion: nil)
                 }
             }
@@ -112,11 +114,13 @@ class AlbumViewController: UIViewController {
             switch result {
             case .success:
                 NotificationCenter.default.post(name: .MyAlbumDidChangeNotification, object: nil)
+                HapticsManager.shared.vibrate(for: .success)
             case let .failure(error):
                 guard let alert = self?.generateAlert(error: error, retryHandler: {
                     self?.deleteAlbum()
                 }) else { return }
                 DispatchQueue.main.async {
+                    HapticsManager.shared.vibrate(for: .error)
                     self?.present(alert, animated: true, completion: nil)
                 }
             }
@@ -163,6 +167,7 @@ extension AlbumViewController: UICollectionViewDataSource {
 extension AlbumViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
+        HapticsManager.shared.vibrateForSelection()
         let track = tracks[indexPath.row]
         
         PlaybackPresenter.shared.startPlayback(
