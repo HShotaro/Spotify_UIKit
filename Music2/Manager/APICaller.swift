@@ -170,23 +170,39 @@ final class APICaller {
         }
     }
     
-    public func removeTrackFromPlaylists(track: AudioTrack, playlist: Playlist, completion: @escaping (Bool) -> Void) {
-//        createRequest(with: URL(string: Constants.baseURL + "/me/playlists"), type: .GET) { [weak self] request in
-//            let task = URLSession.shared.dataTask(with: request) { data, _, error in
-//                guard let data = data, error == nil else {
-//                    completion(.failure(APIError.failedToGetData))
-//                    return
-//                }
-//                do {
-//                    let result = try JSONDecoder().decode(LibraryPlaylistsResponse.self, from: data)
-//                    completion(.success(result.items))
-//                } catch {
-//                    print(error.localizedDescription)
-//                    completion(.failure(error))
-//                }
-//            }
-//            task.resume()
-//        }
+    public func removeTrackFromPlaylists(track: AudioTrack, playlistID: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        createRequest(with: URL(string: Constants.baseURL + "/playlists/\(playlistID)/tracks"), type: .DELETE) { [weak self] baseRequest in
+            var request = baseRequest
+            let json: [String: Any] = [
+                "tracks":[
+                    [
+                        "uri": "spotify:track:\(track.id)"
+                    ]
+                ]
+            ]
+                
+            request.httpBody = try? JSONSerialization.data(withJSONObject: json, options: .fragmentsAllowed)
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let task = URLSession.shared.dataTask(with: request) { data, _, error in
+                guard let data = data, error == nil else {
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do {
+                    let result = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+                    if let response = result as? [String: Any], response["snapshot_id"] as? String != nil {
+                        completion(.success(()))
+                    } else {
+                        completion(.failure(APIError.failedToPostData))
+                    }
+                } catch {
+                    print(error.localizedDescription)
+                    completion(.failure(error))
+                }
+            }
+            task.resume()
+        }
     }
     
     // MARK: - profile
@@ -364,6 +380,7 @@ final class APICaller {
     enum HTTPMethod: String {
         case GET
         case POST
+        case DELETE
     }
     
     

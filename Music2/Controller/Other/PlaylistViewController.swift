@@ -31,6 +31,7 @@ class PlaylistViewController: UIViewController {
         return section
     }))
     
+    var isOwner = false
     let playlistID: String
     
     init(playlistID: String) {
@@ -58,6 +59,9 @@ class PlaylistViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(didTapShare))
         fetchPlaylistData(playlistID: playlistID)
+        if isOwner {
+            addLongTapGesture()
+        }
     }
     
     @objc private func didTapShare() {
@@ -67,6 +71,29 @@ class PlaylistViewController: UIViewController {
         let vc = UIActivityViewController(activityItems: [shareViewModel.title, url], applicationActivities: [])
         vc.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
         present(vc, animated: true, completion: nil)
+    }
+    
+    private func addLongTapGesture() {
+        let gesture = UILongPressGestureRecognizer.init(target: self, action: #selector(didLongPress(_:)))
+        collectionView.addGestureRecognizer(gesture)
+    }
+    
+    @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began else {
+            return
+        }
+        
+        let touchPoint = gesture.location(in: collectionView)
+        guard let indexPath = collectionView.indexPathForItem(at: touchPoint) else { return }
+        
+        let track = tracks[indexPath.row]
+        
+        let actionSheet = UIAlertController(title: track.name, message: "Would you like to delete this from a playlist", preferredStyle: .actionSheet)
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "delete from Playlist", style: .destructive, handler: { [weak self] _ in
+            self?.delete(track: track, from: self?.playlistID ?? "", indexPath: indexPath)
+        }))
+        present(actionSheet, animated: true)
     }
     
     override func viewWillLayoutSubviews() {
@@ -92,6 +119,27 @@ class PlaylistViewController: UIViewController {
             case let .failure(error):
                 guard let alert = self?.generateAlert(error: error, retryHandler: {
                     self?.fetchPlaylistData(playlistID: playlistID)
+                }) else { return }
+                DispatchQueue.main.async {
+                    self?.present(alert, animated: true, completion: nil)
+                }
+            }
+        }
+    }
+    
+    private func delete(track: AudioTrack, from playlistID: String, indexPath: IndexPath) {
+        APICaller.shared.removeTrackFromPlaylists(track: track, playlistID: playlistID) { [weak self] result in
+            switch result {
+            case .success:
+                let alert = UIAlertController(title: "", message: "Removed \(track.name)", preferredStyle: .alert)
+                DispatchQueue.main.async {
+                    self?.tracks.remove(at: indexPath.row)
+                    self?.viewModels.remove(at: indexPath.row)
+                    self?.collectionView.reloadData()
+                }
+            case let .failure(error):
+                guard let alert = self?.generateAlert(error: error, retryHandler: {
+                    self?.delete(track: track, from: playlistID, indexPath: indexPath)
                 }) else { return }
                 DispatchQueue.main.async {
                     self?.present(alert, animated: true, completion: nil)
