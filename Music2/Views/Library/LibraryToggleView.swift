@@ -56,19 +56,28 @@ class LibraryToggleView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private var isIndicatorAnimating = false
+    
     @objc private func tapPlaylists() {
         self.state = .playlist
+        isIndicatorAnimating = true
         UIView.animate(withDuration: 0.2) { [weak self] in
             self?.layoutIndicator()
+        } completion: { [weak self] _ in
+            self?.isIndicatorAnimating = false
         }
         delegate?.libraryToggleViewDidTapPlaylists(self)
     }
     
     @objc private func tapAlbums() {
         self.state = .album
+        isIndicatorAnimating = true
         UIView.animate(withDuration: 0.2) { [weak self] in
             self?.layoutIndicator()
+        } completion: { [weak self] _ in
+            self?.isIndicatorAnimating = false
         }
+
         delegate?.libraryToggleViewDidTapAlbums(self)
     }
     
@@ -89,6 +98,9 @@ class LibraryToggleView: UIView {
     }
     
     func update(for state: State) {
+        guard !isIndicatorAnimating else {
+            return
+        }
         self.state = state
         UIView.animate(withDuration: 0.2) { [weak self] in
             self?.layoutIndicator()

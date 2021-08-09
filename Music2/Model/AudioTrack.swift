@@ -27,20 +27,8 @@ struct AudioTrack: Codable, Equatable {
 
 extension Array where Element == AudioTrack {
     func isSameOf(_ tracks: [AudioTrack]) -> Bool {
-        let lhsIDs = self.compactMap { $0.id}
-        let rhsIDs = tracks.map { $0.id }
-        
-        var isSameOfPrevTracks = true
-        
-        if lhsIDs.count != rhsIDs.count {
-            isSameOfPrevTracks = false
-        }
-        lhsIDs.forEach { lhsID in
-            if !rhsIDs.contains(lhsID) {
-                isSameOfPrevTracks = false
-            }
-        }
-        
-        return isSameOfPrevTracks
+        let lhsIDs = self.compactMap { $0.id}.sorted { $0 < $1}
+        let rhsIDs = tracks.map { $0.id }.sorted { $0 < $1}
+        return lhsIDs == rhsIDs
     }
 }
