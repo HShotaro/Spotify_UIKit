@@ -20,6 +20,8 @@ final class APICaller {
     enum APIError: Error {
         case failedToGetData
         case failedToPostData
+        case failedToPutData
+        case failedToDeleteData
     }
     
     // MARK: - Albums
@@ -34,6 +36,67 @@ final class APICaller {
                 do {
                     let result = try JSONDecoder().decode(AubumDetailsResponse.self, from: data)
                     completion(.success(result))
+                } catch {
+                    print(error.localizedDescription)
+                    completion(.failure(error))
+                }
+            }
+            task.resume()
+        }
+    }
+    
+    public func getCurrentUserAlbums(completion: @escaping (Result<[Album], Error>) -> Void) {
+        createRequest(with: URL(string: Constants.baseURL + "/me/albums"), type: .GET) { [weak self] request in
+            let task = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
+                guard let data = data, error == nil else {
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do {
+                    let result = try JSONDecoder().decode(LibraryAlbumResponse.self, from: data)
+                    completion(.success(result.items.map { $0.album }))
+                } catch {
+                    print(error.localizedDescription)
+                    completion(.failure(error))
+                }
+            }
+            task.resume()
+        }
+    }
+    
+    public func saveAlbum(album: Album, completion: @escaping (Result<Void, Error>) -> Void) {
+        createRequest(with: URL(string: Constants.baseURL + "/me/albums?ids=\(album.id)"), type: .PUT) { baseRequest in
+            var request = baseRequest
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+                guard let data = data, error == nil, let code = (response as? HTTPURLResponse)?.statusCode, code >= 200, code <= 202 else {
+                    completion(.failure(APIError.failedToPutData))
+                    return
+                }
+                do {
+                    completion(.success(()))
+                } catch {
+                    print(error.localizedDescription)
+                    completion(.failure(error))
+                }
+            }
+            task.resume()
+        }
+    }
+    
+    public func deleteAlbum(album: Album, completion: @escaping (Result<Void, Error>) -> Void) {
+        createRequest(with: URL(string: Constants.baseURL + "/me/albums?ids=\(album.id)"), type: .DELETE) { baseRequest in
+            var request = baseRequest
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+                guard let data = data, error == nil, let code = (response as? HTTPURLResponse)?.statusCode, code >= 200, code <= 202 else {
+                    completion(.failure(APIError.failedToDeleteData))
+                    return
+                }
+                do {
+                    completion(.success(()))
                 } catch {
                     print(error.localizedDescription)
                     completion(.failure(error))
@@ -194,7 +257,7 @@ final class APICaller {
                     if let response = result as? [String: Any], response["snapshot_id"] as? String != nil {
                         completion(.success(()))
                     } else {
-                        completion(.failure(APIError.failedToPostData))
+                        completion(.failure(APIError.failedToDeleteData))
                     }
                 } catch {
                     print(error.localizedDescription)
@@ -380,6 +443,7 @@ final class APICaller {
     enum HTTPMethod: String {
         case GET
         case POST
+        case PUT
         case DELETE
     }
     

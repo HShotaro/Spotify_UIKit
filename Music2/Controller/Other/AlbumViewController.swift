@@ -31,6 +31,7 @@ class AlbumViewController: UIViewController {
         return section
     }))
     
+    var isOwner = false
     private let album: Album
     
     init(album: Album) {
@@ -45,7 +46,6 @@ class AlbumViewController: UIViewController {
     private var tracks = [AudioTrack]()
     private var viewModels = [AlbumCellViewModel]()
     private var headerViewModel: AlbumHeaderViewViewModel?
-    private var shareViewModel: (urlString: String, title: String)?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,7 +56,7 @@ class AlbumViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.delegate = self
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(didTapShare))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(didTapActions))
         
         fetchData()
     }
@@ -76,7 +76,6 @@ class AlbumViewController: UIViewController {
                 })
                 
                 self?.headerViewModel = AlbumHeaderViewViewModel(name: model.name, ownerName: model.artists.first?.name ?? "-", description: "Release Date: \(String.formattedDate(string: self?.album.release_date ?? ""))", artworkURL: URL(string: model.images.first?.url ?? ""))
-                self?.shareViewModel = (urlString: model.external_urls["spotify"] ?? "", title: model.name)
                 DispatchQueue.main.async {
                     self?.title = model.name
                     self?.collectionView.reloadData()
@@ -92,13 +91,50 @@ class AlbumViewController: UIViewController {
         }
     }
     
-    @objc private func didTapShare() {
-        guard let shareViewModel = shareViewModel, let url = URL(string: shareViewModel.urlString) else {
-            return
+    private func saveAlbum() {
+        APICaller.shared.saveAlbum(album: album) { [weak self] result in
+            switch result {
+            case .success:
+                NotificationCenter.default.post(name: .MyAlbumDidChangeNotification, object: nil)
+            case let .failure(error):
+                guard let alert = self?.generateAlert(error: error, retryHandler: {
+                    self?.saveAlbum()
+                }) else { return }
+                DispatchQueue.main.async {
+                    self?.present(alert, animated: true, completion: nil)
+                }
+            }
         }
-        let vc = UIActivityViewController(activityItems: [shareViewModel.title, url], applicationActivities: [])
-        vc.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
-        present(vc, animated: true, completion: nil)
+    }
+    
+    private func deleteAlbum() {
+        APICaller.shared.deleteAlbum(album: album) { [weak self] result in
+            switch result {
+            case .success:
+                NotificationCenter.default.post(name: .MyAlbumDidChangeNotification, object: nil)
+            case let .failure(error):
+                guard let alert = self?.generateAlert(error: error, retryHandler: {
+                    self?.deleteAlbum()
+                }) else { return }
+                DispatchQueue.main.async {
+                    self?.present(alert, animated: true, completion: nil)
+                }
+            }
+        }
+    }
+    
+    @objc private func didTapActions() {
+        let actionSheet = UIAlertController(title: album.name, message: "Actions", preferredStyle: .actionSheet)
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "Save Album", style: .default, handler: { [weak self] _ in
+            self?.saveAlbum()
+        }))
+        if isOwner {
+            actionSheet.addAction(UIAlertAction(title: "Delete Album", style: .destructive, handler: { [weak self] _ in
+                self?.deleteAlbum()
+            }))
+        }
+        present(actionSheet, animated: true)
     }
 }
 
