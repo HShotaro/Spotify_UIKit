@@ -19,6 +19,7 @@ final class APICaller {
     
     enum APIError: Error {
         case failedToGetData
+        case failedToPostData
     }
     
     // MARK: - Albums
@@ -80,6 +81,69 @@ final class APICaller {
             }
             task.resume()
         }
+    }
+    
+    public func getCurrentUserPlaylists(completion: @escaping (Result<[Playlist], Error>) -> Void) {
+        createRequest(with: URL(string: Constants.baseURL + "/me/playlists"), type: .GET) { [weak self] request in
+            let task = URLSession.shared.dataTask(with: request) { data, _, error in
+                guard let data = data, error == nil else {
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do {
+                    let result = try JSONDecoder().decode(LibraryPlaylistsResponse.self, from: data)
+                    completion(.success(result.items))
+                } catch {
+                    print(error.localizedDescription)
+                    completion(.failure(error))
+                }
+            }
+            task.resume()
+        }
+    }
+    
+    public func createPlaylists(with name: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        getCurrentUserProfile { [weak self] result in
+            switch result {
+            case let .success(profile):
+                self?.createRequest(with: URL(string: Constants.baseURL + "/users/\(profile.id)/playlists"), type: .POST) { [weak self] baseRequest in
+                    var request = baseRequest
+                    let json = [
+                        "name": name
+                    ]
+                    request.httpBody = try? JSONSerialization.data(withJSONObject: json, options: .fragmentsAllowed)
+                    
+                    let task = URLSession.shared.dataTask(with: request) { data, _, error in
+                        guard let data = data, error == nil else {
+                            completion(.failure(APIError.failedToGetData))
+                            return
+                        }
+                        do {
+                            let result = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+                            if let response = result as? [String: Any], response["id"] as? String != nil {
+                                completion(.success(()))
+                            } else {
+                                completion(.failure(APIError.failedToPostData))
+                            }
+                        } catch {
+                            print(error.localizedDescription)
+                            completion(.failure(error))
+                        }
+                    }
+                    task.resume()
+                }
+            case let .failure(error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    public func addTrackToPlaylists(track: AudioTrack, playlist: Playlist, completion: @escaping (Bool) -> Void) {
+        
+    }
+    
+    public func removeTrackFromPlaylists(track: AudioTrack, playlist: Playlist, completion: @escaping (Bool) -> Void) {
+        
     }
     
     // MARK: - profile

@@ -32,7 +32,6 @@ class PlayerViewController: UIViewController {
         view.addSubview(imageView)
         view.addSubview(controlsView)
         controlsView.delegate = self
-        configureBarButtons()
         
         imageView.clipsToBounds = true
     }
@@ -54,14 +53,6 @@ class PlayerViewController: UIViewController {
     func refreshUI(audioTrack: AudioTrack?) {
         imageView.sd_setImage(with: URL(string: audioTrack?.album?.images?.first?.url ?? ""), completed: nil)
         controlsView.configure(with: PlayerControlsViewViewModel(title: audioTrack?.name, subTitle: audioTrack?.artists?.first?.name))
-    }
-    
-    private func configureBarButtons() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(didTapClose))
-    }
-    
-    @objc private func didTapClose() {
-        dismiss(animated: true, completion: nil)
     }
 }
 

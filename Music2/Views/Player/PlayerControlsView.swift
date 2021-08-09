@@ -46,7 +46,7 @@ final class PlayerControlsView: UIView {
     private let backButton: UIButton = {
         let button = UIButton()
         button.tintColor = .label
-        let image = UIImage(systemName: "backward.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 34, weight: .regular))
+        let image = UIImage(systemName: "backward.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .regular))
         button.setImage(image, for: .normal)
         button.setImage(image, for: .selected)
         return button
@@ -55,7 +55,7 @@ final class PlayerControlsView: UIView {
     private let nextButton: UIButton = {
         let button = UIButton()
         button.tintColor = .label
-        let image = UIImage(systemName: "forward.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 34, weight: .regular))
+        let image = UIImage(systemName: "forward.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .regular))
         button.setImage(image, for: .normal)
         button.setImage(image, for: .selected)
         return button
@@ -64,7 +64,7 @@ final class PlayerControlsView: UIView {
     private let playPauseButton: UIButton = {
         let button = UIButton()
         button.tintColor = .label
-        let image = UIImage(systemName: "pause", withConfiguration: UIImage.SymbolConfiguration(pointSize: 34, weight: .regular))
+        let image = UIImage(systemName: "pause", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25, weight: .regular))
         button.setImage(image, for: .normal)
         button.setImage(image, for: .selected)
         return button
@@ -104,8 +104,8 @@ final class PlayerControlsView: UIView {
         self.isPlaying = !self.isPlaying
         delegate?.playerControlsViewDidTapPlayPauseButton(self)
         
-        let pause = UIImage(systemName: "pause", withConfiguration: UIImage.SymbolConfiguration(pointSize: 34, weight: .regular))
-        let play = UIImage(systemName: "play.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 34, weight: .regular))
+        let pause = UIImage(systemName: "pause", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25, weight: .regular))
+        let play = UIImage(systemName: "play.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25, weight: .regular))
         
         playPauseButton.setImage(isPlaying ? pause : play, for: .normal)
     }

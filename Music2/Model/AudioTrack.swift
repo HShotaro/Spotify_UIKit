@@ -24,3 +24,23 @@ struct AudioTrack: Codable, Equatable {
         return lhs.id == rhs.id
     }
 }
+
+extension Array where Element == AudioTrack {
+    func isSameOf(_ tracks: [AudioTrack]) -> Bool {
+        let lhsIDs = self.compactMap { $0.id}
+        let rhsIDs = tracks.map { $0.id }
+        
+        var isSameOfPrevTracks = true
+        
+        if lhsIDs.count != rhsIDs.count {
+            isSameOfPrevTracks = false
+        }
+        lhsIDs.forEach { lhsID in
+            if !rhsIDs.contains(lhsID) {
+                isSameOfPrevTracks = false
+            }
+        }
+        
+        return isSameOfPrevTracks
+    }
+}
