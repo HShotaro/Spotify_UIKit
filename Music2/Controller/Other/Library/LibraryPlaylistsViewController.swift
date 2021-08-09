@@ -140,7 +140,7 @@ extension LibraryPlaylistsViewController: UITableViewDelegate {
         
         tableView.deselectRow(at: indexPath, animated: true)
         let playlist = playlists[indexPath.row]
-        let vc = PlaylistViewController(attribute: .playlist(id: playlist.id))
+        let vc = PlaylistViewController(playlistID: playlist.id)
         vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)
     }

@@ -320,7 +320,7 @@ extension HomeViewController: UICollectionViewDelegate {
             navigationController?.pushViewController(vc, animated: true)
         case .featuredPlaylists:
             let playlistID = playlistIDs[indexPath.row]
-            let vc = PlaylistViewController(attribute: .playlist(id: playlistID))
+            let vc = PlaylistViewController(playlistID: playlistID)
             vc.navigationItem.largeTitleDisplayMode = .never
             navigationController?.pushViewController(vc, animated: true)
         case .recommendedTracks:

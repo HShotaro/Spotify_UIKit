@@ -1,13 +1,13 @@
 //
-//  PlaylistViewController.swift
+//  ArtistViewController.swift
 //  Music2
 //
-//  Created by 平野翔太郎 on 2021/08/05.
+//  Created by 平野翔太郎 on 2021/08/09.
 //
 
 import UIKit
 
-class PlaylistViewController: UIViewController {
+class ArtistViewController: UIViewController {
     private let collectionView = UICollectionView.init(frame: .zero, collectionViewLayout: UICollectionViewCompositionalLayout(sectionProvider: { _, _ in
         // Item
         let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.0)))
@@ -31,10 +31,10 @@ class PlaylistViewController: UIViewController {
         return section
     }))
     
-    let playlistID: String
+    let artistID: String
     
-    init(playlistID: String) {
-        self.playlistID = playlistID
+    init(artistID: String) {
+        self.artistID = artistID
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -45,7 +45,7 @@ class PlaylistViewController: UIViewController {
     private var tracks = [AudioTrack]()
     private var viewModels = [PlaylistCellViewModel]()
     private var headerViewModel: PlaylistHeaderViewViewModel?
-    private var shareViewModel: (urlString: String, title: String)?
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,42 +56,86 @@ class PlaylistViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.delegate = self
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(didTapShare))
-        fetchPlaylistData(playlistID: playlistID)
+        fetchArtistTopTracksData(artistID: artistID)
+        addLongTapGesture()
     }
     
-    @objc private func didTapShare() {
-        guard let shareViewModel = shareViewModel, let url = URL(string: shareViewModel.urlString) else {
-            return
-        }
-        let vc = UIActivityViewController(activityItems: [shareViewModel.title, url], applicationActivities: [])
-        vc.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
-        present(vc, animated: true, completion: nil)
-    }
-    
+
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         collectionView.frame = view.bounds
     }
     
-    private func fetchPlaylistData(playlistID: String) {
-        APICaller.shared.getPlaylistDetails(for: playlistID) { [weak self] result in
+    private func addLongTapGesture() {
+        let gesture = UILongPressGestureRecognizer.init(target: self, action: #selector(didLongPress(_:)))
+        collectionView.addGestureRecognizer(gesture)
+    }
+    
+    @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began else {
+            return
+        }
+        
+        let touchPoint = gesture.location(in: collectionView)
+        guard let indexPath = collectionView.indexPathForItem(at: touchPoint) else { return }
+        
+        let track = tracks[indexPath.row]
+        
+        let actionSheet = UIAlertController(title: track.name, message: "Would you like to add this to a playlist", preferredStyle: .actionSheet)
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "Add to Playlist", style: .default, handler: { [weak self] _ in
+            DispatchQueue.main.async {
+                let vc = LibraryPlaylistsViewController()
+                vc.selectionHandler = { playlist in
+                    vc.dismiss(animated: true, completion: nil)
+                    self?.add(track: track, to: playlist)
+                }
+                vc.title = "SelectPlaylist"
+                self?.present(NavigationController.init(rootViewController: vc), animated: true, completion: nil)
+            }
+        }))
+        present(actionSheet, animated: true)
+    }
+
+    private func fetchArtistTopTracksData(artistID: String) {
+        APICaller.shared.getArtistTopTracksData(for: artistID) { [weak self] result in
             switch result {
             case let .success(model):
-                self?.tracks = model.tracks.items.compactMap({ $0.track})
-                self?.viewModels = model.tracks.items.compactMap({ playList in
-                    PlaylistCellViewModel(name: playList.track.name, artistName: playList.track.artists?.first?.name ?? "", artworkURL: URL(string: playList.track.album?.images?.first?.url ?? ""))
+                self?.tracks = model
+                self?.viewModels = model.compactMap({ track in
+                    PlaylistCellViewModel(name: track.name, artistName: track.artists?.first?.name ?? "", artworkURL: URL(string: track.album?.images?.first?.url ?? ""))
                 })
-                
-                self?.headerViewModel = PlaylistHeaderViewViewModel(name: model.name, ownerName: model.tracks.items.first?.track.artists?.first?.name ?? "", description: model.description, artworkURL: URL(string: model.images.first?.url ?? ""))
-                self?.shareViewModel = (urlString: model.external_urls["spotify"] ?? "", title: model.description)
+                self?.headerViewModel = PlaylistHeaderViewViewModel(name: model.first?.artists?.first?.name, ownerName: "", description: "", artworkURL: URL(string: model.first?.album?.images?.first?.url ?? ""))
                 DispatchQueue.main.async {
-                    self?.title = model.name
+                    self?.title = self?.tracks.first?.artists?.first?.name
                     self?.collectionView.reloadData()
                 }
             case let .failure(error):
                 guard let alert = self?.generateAlert(error: error, retryHandler: {
-                    self?.fetchPlaylistData(playlistID: playlistID)
+                    self?.fetchArtistTopTracksData(artistID: artistID)
+                }) else { return }
+                DispatchQueue.main.async {
+                    self?.present(alert, animated: true, completion: nil)
+                }
+            }
+        }
+    }
+    
+    private func add(track: AudioTrack, to playlist: Playlist) {
+        APICaller.shared.addTrackToPlaylists(track: track, playlist: playlist) { [weak self] result in
+            switch result {
+            case .success:
+                let alert = UIAlertController(title: "", message: "Added \(track.name) to \(playlist.name)", preferredStyle: .alert)
+                DispatchQueue.main.async {
+                    self?.present(alert, animated: true, completion: { [weak self] in
+                        UIView.animate(withDuration: 0.1, delay: 0.3, options: .init()) {} completion: { finished in
+                            alert.dismiss(animated: true, completion: nil)
+                        }
+                    })
+                }
+            case let .failure(error):
+                guard let alert = self?.generateAlert(error: error, retryHandler: {
+                    self?.add(track: track, to: playlist)
                 }) else { return }
                 DispatchQueue.main.async {
                     self?.present(alert, animated: true, completion: nil)
@@ -101,7 +145,7 @@ class PlaylistViewController: UIViewController {
     }
 }
 
-extension PlaylistViewController: UICollectionViewDataSource {
+extension ArtistViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return viewModels.count
     }
@@ -122,7 +166,7 @@ extension PlaylistViewController: UICollectionViewDataSource {
     }
 }
 
-extension PlaylistViewController: UICollectionViewDelegate {
+extension ArtistViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         let track = tracks[indexPath.row]
@@ -130,7 +174,7 @@ extension PlaylistViewController: UICollectionViewDelegate {
     }
 }
 
-extension PlaylistViewController: PlaylistHeaderCollectionReusableViewDelegate {
+extension ArtistViewController: PlaylistHeaderCollectionReusableViewDelegate {
     func playlistHeaderCollectionReusableViewDidTapPlayAll(_ header: PlaylistHeaderCollectionReusableView) {
         PlaybackPresenter.shared.startPlayback(
             from: self,

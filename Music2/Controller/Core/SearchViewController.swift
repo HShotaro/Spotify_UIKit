@@ -150,7 +150,7 @@ extension SearchViewController: SearchResultViewControllerDelegate {
     func didSelectResult(_ result: SearchResult) {
         switch result {
         case let .artist(artist):
-            let vc = PlaylistViewController(attribute: .artist(id: artist.id))
+            let vc = ArtistViewController(artistID: artist.id)
             vc.navigationItem.largeTitleDisplayMode = .never
             navigationController?.pushViewController(vc, animated: true)
         case let .album(album):
@@ -160,7 +160,7 @@ extension SearchViewController: SearchResultViewControllerDelegate {
         case let .track(track):
             PlaybackPresenter.shared.startPlayback(from: self, track: track)
         case let .playlist(playlist):
-            let vc = PlaylistViewController(attribute: .playlist(id: playlist.id))
+            let vc = PlaylistViewController(playlistID: playlist.id)
             vc.navigationItem.largeTitleDisplayMode = .never
             navigationController?.pushViewController(vc, animated: true)
         }
