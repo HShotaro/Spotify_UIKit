@@ -69,6 +69,7 @@ class PlaylistViewController: UIViewController {
             fetchArtistTopTracksData(artistID: id)
         }
         
+        addLongTapGesture()
     }
     
     @objc private func didTapShare() {
@@ -83,6 +84,37 @@ class PlaylistViewController: UIViewController {
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         collectionView.frame = view.bounds
+    }
+    
+    private func addLongTapGesture() {
+        let gesture = UILongPressGestureRecognizer.init(target: self, action: #selector(didLongPress(_:)))
+        collectionView.addGestureRecognizer(gesture)
+    }
+    
+    @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began else {
+            return
+        }
+        
+        let touchPoint = gesture.location(in: collectionView)
+        guard let indexPath = collectionView.indexPathForItem(at: touchPoint) else { return }
+        
+        let track = tracks[indexPath.row]
+        
+        let actionSheet = UIAlertController(title: track.name, message: "Would you like to add this to a playlist", preferredStyle: .actionSheet)
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "Add to Playlist", style: .default, handler: { [weak self] _ in
+            DispatchQueue.main.async {
+                let vc = LibraryPlaylistsViewController()
+                vc.selectionHandler = { playlist in
+                    vc.dismiss(animated: true, completion: nil)
+                    self?.add(track: track, to: playlist)
+                }
+                vc.title = "SelectPlaylist"
+                self?.present(NavigationController.init(rootViewController: vc), animated: true, completion: nil)
+            }
+        }))
+        present(actionSheet, animated: true)
     }
     
     private func fetchPlaylistData(playlistID: String) {
@@ -128,6 +160,29 @@ class PlaylistViewController: UIViewController {
             case let .failure(error):
                 guard let alert = self?.generateAlert(error: error, retryHandler: {
                     self?.fetchArtistTopTracksData(artistID: artistID)
+                }) else { return }
+                DispatchQueue.main.async {
+                    self?.present(alert, animated: true, completion: nil)
+                }
+            }
+        }
+    }
+    
+    private func add(track: AudioTrack, to playlist: Playlist) {
+        APICaller.shared.addTrackToPlaylists(track: track, playlist: playlist) { [weak self] result in
+            switch result {
+            case .success:
+                let alert = UIAlertController(title: "", message: "Added \(track.name) to \(playlist.name)", preferredStyle: .alert)
+                DispatchQueue.main.async {
+                    self?.present(alert, animated: true, completion: { [weak self] in
+                        UIView.animate(withDuration: 0.1, delay: 0.3, options: .init()) {} completion: { finished in
+                            alert.dismiss(animated: true, completion: nil)
+                        }
+                    })
+                }
+            case let .failure(error):
+                guard let alert = self?.generateAlert(error: error, retryHandler: {
+                    self?.add(track: track, to: playlist)
                 }) else { return }
                 DispatchQueue.main.async {
                     self?.present(alert, animated: true, completion: nil)

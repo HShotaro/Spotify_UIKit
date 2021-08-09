@@ -11,6 +11,8 @@ class LibraryPlaylistsViewController: UIViewController {
 
     var playlists = [Playlist]()
     
+    var selectionHandler: ((Playlist) -> Void)?
+    
     private let noPlaylistView = ActionLabelView()
     
     private let tableView: UITableView = {
@@ -131,6 +133,11 @@ extension LibraryPlaylistsViewController: UITableViewDataSource {
 
 extension LibraryPlaylistsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard selectionHandler == nil else {
+            selectionHandler?(playlists[indexPath.row])
+            return
+        }
+        
         tableView.deselectRow(at: indexPath, animated: true)
         let playlist = playlists[indexPath.row]
         let vc = PlaylistViewController(attribute: .playlist(id: playlist.id))
