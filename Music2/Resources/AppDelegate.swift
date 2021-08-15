@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AVFoundation
 import CoreData
 
 @main
@@ -26,6 +27,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             navVC.viewControllers.first?.navigationItem.largeTitleDisplayMode = .always
             window.rootViewController = navVC
         }
+        
+        // MARK: 音楽再生モード設定
+        let session = AVAudioSession.sharedInstance()
+                do {
+                    try session.setCategory(.playback, mode: .default)
+                    try session.setActive(true)
+                } catch  {
+                    fatalError("音楽再生モード設定失敗")
+                }
+        
         window.makeKeyAndVisible()
         self.window = window
         return true
