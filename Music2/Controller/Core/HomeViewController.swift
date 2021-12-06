@@ -232,7 +232,6 @@ class HomeViewController: UIViewController {
     }
     
     var newAlbums = [Album]()
-    var playlistIDs = [String]()
     var tracks = [AudioTrack]()
     
     private func configureModels(
@@ -241,14 +240,13 @@ class HomeViewController: UIViewController {
         tracks: [AudioTrack]
     ) {
         self.newAlbums = newAlbums
-        self.playlistIDs = playlists.map { $0.id }
         self.tracks = tracks
         self.sections = [
             .newReleases(viewModels: newAlbums.compactMap({ album in
                 return NewReleasesCellViewModel(name: album.name, artworkURL: URL(string: album.images?.first?.url ?? ""), numberOfTracks: album.total_tracks ?? 0, artistName: album.artists?.first?.name ?? "-")
             })),
             .featuredPlaylists(viewModels: playlists.compactMap({ playlist in
-                return FeaturedPlaylistCellViewModel(name: playlist.name, artworkURL: URL(string: playlist.images?.first?.url ?? ""), creatorName: playlist.owner?.display_name ?? "")
+                return FeaturedPlaylistCellViewModel(playlistID: playlist.id, name: playlist.name, artworkURL: URL(string: playlist.images?.first?.url ?? ""), creatorName: playlist.owner?.display_name ?? "")
             })),
             .recommendedTracks(viewModels: tracks.compactMap({ audioTrack in
                 return RecommendedTrackCellViewModel(name: audioTrack.name, artistName: audioTrack.artists?.first?.name ?? "-", artworkURL: URL(string: audioTrack.album?.images?.first?.url ?? ""))
@@ -319,8 +317,8 @@ extension HomeViewController: UICollectionViewDelegate {
             let vc = AlbumViewController(album: album)
             vc.navigationItem.largeTitleDisplayMode = .never
             navigationController?.pushViewController(vc, animated: true)
-        case .featuredPlaylists:
-            let playlistID = playlistIDs[indexPath.row]
+        case let .featuredPlaylists(playlists):
+            let playlistID = playlists[indexPath.row].playlistID
             let vc = PlaylistViewController(playlistID: playlistID)
             vc.navigationItem.largeTitleDisplayMode = .never
             navigationController?.pushViewController(vc, animated: true)

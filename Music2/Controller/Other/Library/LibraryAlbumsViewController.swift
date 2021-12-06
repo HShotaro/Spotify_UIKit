@@ -41,18 +41,17 @@ class LibraryAlbumsViewController: UIViewController {
     
 
     private func fetchData() {
-        APICaller.shared.getCurrentUserAlbums { [weak self] result in
-            switch result {
-            case let .success(albumlist):
-                self?.albumlist = albumlist
+        Task(priority: .utility) {
+            do {
+                self.albumlist = try await APIManager.shared.getCurrentUserAlbums()
                 DispatchQueue.main.async { [weak self] in
                     self?.updateUI()
                 }
-            case let .failure(error):
-                guard let alert = self?.generateAlert(error: error, retryHandler: {
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
                     self?.fetchData()
-                }) else { return }
-                DispatchQueue.main.async {
+                })
+                DispatchQueue.main.async { [weak self] in
                     self?.present(alert, animated: true, completion: nil)
                 }
             }

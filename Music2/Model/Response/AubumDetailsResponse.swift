@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AubumDetailsResponse: Codable {
+struct AlbumDetailsResponse: Codable {
     let album_type: String
     let artists: [Artist]
     let available_markets: [String]

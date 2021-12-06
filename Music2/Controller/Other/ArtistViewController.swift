@@ -98,23 +98,23 @@ class ArtistViewController: UIViewController {
     }
 
     private func fetchArtistTopTracksData(artistID: String) {
-        APICaller.shared.getArtistTopTracksData(for: artistID) { [weak self] result in
-            switch result {
-            case let .success(model):
-                self?.tracks = model
-                self?.viewModels = model.compactMap({ track in
+        Task(priority: .utility) {
+            do {
+                let model = try await APIManager.shared.getArtistTopTracksData(for: artistID)
+                self.tracks = model
+                self.viewModels = model.compactMap({ track in
                     PlaylistCellViewModel(name: track.name, artistName: track.artists?.first?.name ?? "", artworkURL: URL(string: track.album?.images?.first?.url ?? ""))
                 })
-                self?.headerViewModel = PlaylistHeaderViewViewModel(name: model.first?.artists?.first?.name, artworkURL: URL(string: model.first?.album?.images?.first?.url ?? ""))
-                DispatchQueue.main.async {
+                self.headerViewModel = PlaylistHeaderViewViewModel(name: model.first?.artists?.first?.name, artworkURL: URL(string: model.first?.album?.images?.first?.url ?? ""))
+                DispatchQueue.main.async { [weak self] in
                     self?.title = self?.tracks.first?.artists?.first?.name
                     self?.collectionView.reloadData()
                 }
-            case let .failure(error):
-                guard let alert = self?.generateAlert(error: error, retryHandler: {
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
                     self?.fetchArtistTopTracksData(artistID: artistID)
-                }) else { return }
-                DispatchQueue.main.async {
+                })
+                DispatchQueue.main.async { [weak self] in
                     self?.present(alert, animated: true, completion: nil)
                 }
             }
@@ -122,23 +122,23 @@ class ArtistViewController: UIViewController {
     }
     
     private func add(track: AudioTrack, to playlist: Playlist) {
-        APICaller.shared.addTrackToPlaylists(track: track, playlist: playlist) { [weak self] result in
-            switch result {
-            case .success:
+        Task(priority: .utility) {
+            do {
+                try await APIManager.shared.addTrackToPlaylists(track: track, playlist: playlist)
                 let alert = UIAlertController(title: "", message: "Added \(track.name) to \(playlist.name)", preferredStyle: .alert)
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak self] in
                     HapticsManager.shared.vibrate(for: .success)
-                    self?.present(alert, animated: true, completion: { [weak self] in
+                    self?.present(alert, animated: true, completion: {
                         UIView.animate(withDuration: 0.1, delay: 0.3, options: .init()) {} completion: { finished in
                             alert.dismiss(animated: true, completion: nil)
                         }
                     })
                 }
-            case let .failure(error):
-                guard let alert = self?.generateAlert(error: error, retryHandler: {
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
                     self?.add(track: track, to: playlist)
-                }) else { return }
-                DispatchQueue.main.async {
+                })
+                DispatchQueue.main.async { [weak self] in
                     HapticsManager.shared.vibrate(for: .error)
                     self?.present(alert, animated: true, completion: nil)
                 }

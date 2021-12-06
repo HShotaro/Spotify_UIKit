@@ -102,25 +102,25 @@ class PlaylistViewController: UIViewController {
     }
     
     private func fetchPlaylistData(playlistID: String) {
-        APICaller.shared.getPlaylistDetails(for: playlistID) { [weak self] result in
-            switch result {
-            case let .success(model):
-                self?.tracks = model.tracks.items.compactMap({ $0.track})
-                self?.viewModels = model.tracks.items.compactMap({ playList in
+        Task(priority: .utility) {
+            do {
+                let model = try await APIManager.shared.getPlaylistDetails(for: playlistID)
+                self.tracks = model.tracks.items.compactMap({ $0.track})
+                self.viewModels = model.tracks.items.compactMap({ playList in
                     PlaylistCellViewModel(name: playList.track.name, artistName: playList.track.artists?.first?.name ?? "", artworkURL: URL(string: playList.track.album?.images?.first?.url ?? ""))
                 })
                 
-                self?.headerViewModel = PlaylistHeaderViewViewModel(name: model.name, artworkURL: URL(string: model.images.first?.url ?? ""))
-                self?.shareViewModel = (urlString: model.external_urls["spotify"] ?? "", title: model.description)
-                DispatchQueue.main.async {
+                self.headerViewModel = PlaylistHeaderViewViewModel(name: model.name, artworkURL: URL(string: model.images.first?.url ?? ""))
+                self.shareViewModel = (urlString: model.external_urls["spotify"] ?? "", title: model.description)
+                DispatchQueue.main.async { [weak self] in
                     self?.title = model.name
                     self?.collectionView.reloadData()
                 }
-            case let .failure(error):
-                guard let alert = self?.generateAlert(error: error, retryHandler: {
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
                     self?.fetchPlaylistData(playlistID: playlistID)
-                }) else { return }
-                DispatchQueue.main.async {
+                })
+                DispatchQueue.main.async { [weak self] in
                     self?.present(alert, animated: true, completion: nil)
                 }
             }
@@ -128,21 +128,21 @@ class PlaylistViewController: UIViewController {
     }
     
     private func delete(track: AudioTrack, from playlistID: String, indexPath: IndexPath) {
-        APICaller.shared.removeTrackFromPlaylists(track: track, playlistID: playlistID) { [weak self] result in
-            switch result {
-            case .success:
+        Task(priority: .utility) {
+            do {
+                try await APIManager.shared.removeTrackFromPlaylists(track: track, playlistID: playlistID)
                 let alert = UIAlertController(title: "", message: "Removed \(track.name)", preferredStyle: .alert)
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak self] in
                     HapticsManager.shared.vibrate(for: .success)
                     self?.tracks.remove(at: indexPath.row)
                     self?.viewModels.remove(at: indexPath.row)
                     self?.collectionView.reloadData()
                 }
-            case let .failure(error):
-                guard let alert = self?.generateAlert(error: error, retryHandler: {
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
                     self?.delete(track: track, from: playlistID, indexPath: indexPath)
-                }) else { return }
-                DispatchQueue.main.async {
+                })
+                DispatchQueue.main.async { [weak self] in
                     HapticsManager.shared.vibrate(for: .error)
                     self?.present(alert, animated: true, completion: nil)
                 }

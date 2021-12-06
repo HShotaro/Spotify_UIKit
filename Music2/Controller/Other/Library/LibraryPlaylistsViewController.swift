@@ -40,18 +40,17 @@ class LibraryPlaylistsViewController: UIViewController {
     
 
     private func fetchData() {
-        APICaller.shared.getCurrentUserPlaylists { [weak self] result in
-            switch result {
-            case let .success(playlists):
-                self?.playlists = playlists
+        Task(priority: .utility) {
+            do {
+                self.playlists = try await APIManager.shared.getCurrentUserPlaylists()
                 DispatchQueue.main.async { [weak self] in
                     self?.updateUI()
                 }
-            case let .failure(error):
-                guard let alert = self?.generateAlert(error: error, retryHandler: {
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
                     self?.fetchData()
-                }) else { return }
-                DispatchQueue.main.async {
+                })
+                DispatchQueue.main.async { [weak self] in
                     self?.present(alert, animated: true, completion: nil)
                 }
             }
@@ -75,22 +74,25 @@ class LibraryPlaylistsViewController: UIViewController {
                   !text.trimmingCharacters(in: .whitespaces).isEmpty else {
                 return
             }
-            
-            APICaller.shared.createPlaylists(with: text) { [weak self] result in
-                switch result {
-                case .success:
-                    self?.fetchData()
-                case let .failure(error):
-                    guard let alert = self?.generateAlert(error: error, retryHandler: {
-                        self?.fetchData()
-                    }) else { return }
-                    DispatchQueue.main.async {
-                        self?.present(alert, animated: true, completion: nil)
-                    }
-                }
-            }
+            self?.createPlaylist(text: text)
         }))
         self.present(alert, animated: true, completion: nil)
+    }
+    
+    private func createPlaylist(text: String) {
+        Task.init(priority: .utility) {
+            do {
+                try await APIManager.shared.createPlaylists(with: text)
+                self.fetchData()
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
+                    self?.fetchData()
+                })
+                DispatchQueue.main.async { [weak self] in
+                    self?.present(alert, animated: true, completion: nil)
+                }
+            }
+        }
     }
     
     private func setUpNoPlaylistView() {

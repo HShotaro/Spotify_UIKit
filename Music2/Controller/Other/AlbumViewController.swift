@@ -67,24 +67,24 @@ class AlbumViewController: UIViewController {
     }
     
     private func fetchData() {
-        APICaller.shared.getAlbumDetails(for: album.id) { [weak self] result in
-            switch result {
-            case let .success(model):
-                self?.tracks = model.tracks.items
-                self?.viewModels = model.tracks.items.compactMap({ audioTracks in
+        Task(priority: .utility) {
+            do {
+                let model = try await APIManager.shared.getAlbumDetails(for: album.id)
+                self.tracks = model.tracks.items
+                self.viewModels = model.tracks.items.compactMap({ audioTracks in
                     AlbumCellViewModel(name: audioTracks.name , artistName: audioTracks.artists?.first?.name ?? "-")
                 })
                 
-                self?.headerViewModel = AlbumHeaderViewViewModel(name: model.name, ownerName: model.artists.first?.name ?? "-", description: "Release Date: \(String.formattedDate(string: self?.album.release_date ?? ""))", artworkURL: URL(string: model.images.first?.url ?? ""))
+                self.headerViewModel = AlbumHeaderViewViewModel(name: model.name, ownerName: model.artists.first?.name ?? "-", description: "Release Date: \(String.formattedDate(string: self.album.release_date ?? ""))", artworkURL: URL(string: model.images.first?.url ?? ""))
                 DispatchQueue.main.async {
-                    self?.title = model.name
-                    self?.collectionView.reloadData()
+                    self.title = model.name
+                    self.collectionView.reloadData()
                 }
-            case let .failure(error):
-                guard let alert = self?.generateAlert(error: error, retryHandler: {
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
                     self?.fetchData()
-                }) else { return }
-                DispatchQueue.main.async {
+                })
+                DispatchQueue.main.async { [weak self] in
                     self?.present(alert, animated: true, completion: nil)
                 }
             }
@@ -92,16 +92,16 @@ class AlbumViewController: UIViewController {
     }
     
     private func saveAlbum() {
-        APICaller.shared.saveAlbum(album: album) { [weak self] result in
-            switch result {
-            case .success:
+        Task(priority: .utility) {
+            do {
+                try await APIManager.shared.saveAlbum(album: album)
                 NotificationCenter.default.post(name: .MyAlbumDidChangeNotification, object: nil)
                 HapticsManager.shared.vibrate(for: .success)
-            case let .failure(error):
-                guard let alert = self?.generateAlert(error: error, retryHandler: {
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
                     self?.saveAlbum()
-                }) else { return }
-                DispatchQueue.main.async {
+                })
+                DispatchQueue.main.async { [weak self] in
                     HapticsManager.shared.vibrate(for: .error)
                     self?.present(alert, animated: true, completion: nil)
                 }
@@ -110,16 +110,16 @@ class AlbumViewController: UIViewController {
     }
     
     private func deleteAlbum() {
-        APICaller.shared.deleteAlbum(album: album) { [weak self] result in
-            switch result {
-            case .success:
+        Task(priority: .utility) {
+            do {
+                try await APIManager.shared.deleteAlbum(album: album)
                 NotificationCenter.default.post(name: .MyAlbumDidChangeNotification, object: nil)
                 HapticsManager.shared.vibrate(for: .success)
-            case let .failure(error):
-                guard let alert = self?.generateAlert(error: error, retryHandler: {
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
                     self?.deleteAlbum()
-                }) else { return }
-                DispatchQueue.main.async {
+                })
+                DispatchQueue.main.async { [weak self] in
                     HapticsManager.shared.vibrate(for: .error)
                     self?.present(alert, animated: true, completion: nil)
                 }

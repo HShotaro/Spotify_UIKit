@@ -35,18 +35,15 @@ class ProfileViewController: UIViewController {
     }
     
     private func fetchProfile() {
-        APICaller.shared.getCurrentUserProfile { [weak self] result in
-            DispatchQueue.main.async {
-                switch result {
-                case let .success(userProfile):
-                    self?.updateUI(with: userProfile)
-                case let .failure(error):
-                    guard let alert = self?.generateAlert(error: error, retryHandler: { [weak self] in
-                        self?.fetchProfile()
-                    }) else { return }
-                    self?.present(alert, animated: true, completion: nil)
-                    
-                }
+        Task(priority: .utility) {
+            do {
+                let userProfile = try await APIManager.shared.getCurrentUserProfile()
+                self.updateUI(with: userProfile)
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
+                    self?.fetchProfile()
+                })
+                self.present(alert, animated: true, completion: nil)
             }
         }
     }

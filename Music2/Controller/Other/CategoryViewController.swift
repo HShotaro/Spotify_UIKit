@@ -60,24 +60,21 @@ class CategoryViewController: UIViewController {
         collectionView.frame = view.bounds
     }
 
-    
-    var playlistIDs = [String]()
     private func fetchData() {
-        APICaller.shared.getCategoryPlayList(categoryID: categoryID) { [weak self] result in
-            switch result {
-            case let .success(playlists):
-                self?.playlistIDs = playlists.map { $0.id }
-                self?.viewModels = playlists.compactMap({ p in
-                    FeaturedPlaylistCellViewModel(name: p.name, artworkURL: URL(string: p.images?.first?.url ?? ""), creatorName: p.owner?.display_name ?? "")
+        Task(priority: .utility) {
+            do {
+                let playlists = try await APIManager.shared.getCategoryPlayList(categoryID: categoryID)
+                self.viewModels = playlists.compactMap({ p in
+                    FeaturedPlaylistCellViewModel(playlistID: p.id, name: p.name, artworkURL: URL(string: p.images?.first?.url ?? ""), creatorName: p.owner?.display_name ?? "")
                 })
                 DispatchQueue.main.async {
-                    self?.collectionView.reloadData()
+                    self.collectionView.reloadData()
                 }
-            case let .failure(error):
-                guard let alert = self?.generateAlert(error: error, retryHandler: {
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
                     self?.fetchData()
-                }) else { return }
-                DispatchQueue.main.async {
+                })
+                DispatchQueue.main.async { [weak self] in
                     self?.present(alert, animated: true, completion: nil)
                 }
             }
@@ -93,14 +90,14 @@ extension CategoryViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCollectionViewCell.identifier, for: indexPath) as? CategoryCollectionViewCell else { return UICollectionViewCell() }
         let playlist = viewModels[indexPath.row]
-        cell.configure(with: CategoryCellViewModel(id: playlistIDs[indexPath.row], name: playlist.name ?? "", iconURL: playlist.artworkURL))
+        cell.configure(with: CategoryCellViewModel(id: playlist.playlistID, name: playlist.name ?? "", iconURL: playlist.artworkURL))
         return cell
     }
 }
 
 extension CategoryViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let vc = PlaylistViewController(playlistID: playlistIDs[indexPath.row])
+        let vc = PlaylistViewController(playlistID: viewModels[indexPath.row].playlistID)
         vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)
     }

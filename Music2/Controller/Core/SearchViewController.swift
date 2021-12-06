@@ -61,20 +61,20 @@ class SearchViewController: UIViewController {
     private var categories = [CategoryCellViewModel]()
     
     private func fetchCategoryData() {
-        APICaller.shared.getCategories { [weak self] result in
-            switch result {
-            case let .success(categories):
-                self?.categories = categories.compactMap({ c in
+        Task(priority: .utility) {
+            do {
+                let result = try await APIManager.shared.getCategories()
+                self.categories = result.compactMap({ c in
                     CategoryCellViewModel(id: c.id, name: c.name, iconURL: URL(string: c.icons.first?.url ?? ""))
                 })
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak self] in
                     self?.collectionView.reloadData()
                 }
-            case let .failure(error):
-                guard let alert = self?.generateAlert(error: error, retryHandler: {
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
                     self?.fetchCategoryData()
-                }) else { return }
-                DispatchQueue.main.async {
+                })
+                DispatchQueue.main.async { [weak self] in
                     self?.present(alert, animated: true, completion: nil)
                 }
             }
@@ -82,17 +82,17 @@ class SearchViewController: UIViewController {
     }
     
     private func search(with query: String) {
-        APICaller.shared.search(with: query) { [weak self] result in
-            switch result {
-            case let .success(results):
-                DispatchQueue.main.async {
+        Task(priority: .utility) {
+            do {
+                let results = try await APIManager.shared.search(with: query)
+                DispatchQueue.main.async { [weak self] in
                     (self?.searchController.searchResultsController as? SearchResultViewController)?.update(with: results)
                 }
-            case let .failure(error):
-                guard let alert = self?.generateAlert(error: error, retryHandler: {
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
                     self?.search(with: query)
-                }) else { return }
-                DispatchQueue.main.async {
+                })
+                DispatchQueue.main.async { [weak self] in
                     self?.present(alert, animated: true, completion: nil)
                 }
             }

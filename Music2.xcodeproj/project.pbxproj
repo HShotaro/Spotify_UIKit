@@ -87,6 +87,7 @@
 		36BFBE1226BBC0AA003C56BD /* AuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BFBE1126BBC0AA003C56BD /* AuthResponse.swift */; };
 		51940056F730C320F9315AD6 /* libPods-Music2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A64C24984202D123F6B81E08 /* libPods-Music2.a */; };
 		5C03CDD7CDB4B6B0BA4239D5 /* libPods-Music2Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 53EB7534DEFD1584A5D523D1 /* libPods-Music2Tests.a */; };
+		CBC4DDDF275763F7005C1EEB /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBC4DDDE275763F7005C1EEB /* APIManager.swift */; };
 		E1D0B595C53451BA83D08D81 /* libPods-Music2-Music2UITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 542B11B4523586132A5F77DB /* libPods-Music2-Music2UITests.a */; };
 /* End PBXBuildFile section */
 
@@ -200,6 +201,7 @@
 		A5335B3FB9110343BF64BEEC /* Pods-Music2.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Music2.release.xcconfig"; path = "Target Support Files/Pods-Music2/Pods-Music2.release.xcconfig"; sourceTree = "<group>"; };
 		A64C24984202D123F6B81E08 /* libPods-Music2.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Music2.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6A8A01C5308CE95D3ECAD5D /* Pods-Music2Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Music2Tests.release.xcconfig"; path = "Target Support Files/Pods-Music2Tests/Pods-Music2Tests.release.xcconfig"; sourceTree = "<group>"; };
+		CBC4DDDE275763F7005C1EEB /* APIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIManager.swift; sourceTree = "<group>"; };
 		EEE60D16203B55472D971371 /* Pods-Music2-Music2UITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Music2-Music2UITests.release.xcconfig"; path = "Target Support Files/Pods-Music2-Music2UITests/Pods-Music2-Music2UITests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -352,6 +354,7 @@
 			isa = PBXGroup;
 			children = (
 				3638226926BB03BF005B2D1C /* AuthManager.swift */,
+				CBC4DDDE275763F7005C1EEB /* APIManager.swift */,
 				3638226B26BB03CA005B2D1C /* APICaller.swift */,
 				3638226D26BB03D8005B2D1C /* HapticsManager.swift */,
 			);
@@ -899,6 +902,7 @@
 				3627AFD426BDE1DE00060E65 /* RecommendedTrackCellViewModel.swift in Sources */,
 				36B6E43E26BC25B0005B164B /* Artist.swift in Sources */,
 				3651002826C04F8000C337ED /* ArtistTopTracksDataResponse.swift in Sources */,
+				CBC4DDDF275763F7005C1EEB /* APIManager.swift in Sources */,
 				3627AFDD26BE117300060E65 /* PlaylistHeaderCollectionReusableView.swift in Sources */,
 				3645CD6C26B311ED0056F604 /* SceneDelegate.swift in Sources */,
 			);
