@@ -88,6 +88,6 @@ final class AlbumHeaderCollectionReusableView: UICollectionReusableView {
         nameLabel.text = viewModel?.name
         descriptionLabel.text = viewModel?.description
         ownerLabel.text = viewModel?.ownerName
-        imageView.sd_setImage(with: viewModel?.artworkURL, completed: nil)
+        imageView.setImageBy(viewModel?.artworkURL)
     }
 }

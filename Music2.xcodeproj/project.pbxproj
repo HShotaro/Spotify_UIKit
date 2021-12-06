@@ -87,6 +87,9 @@
 		36BFBE1226BBC0AA003C56BD /* AuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BFBE1126BBC0AA003C56BD /* AuthResponse.swift */; };
 		51940056F730C320F9315AD6 /* libPods-Music2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A64C24984202D123F6B81E08 /* libPods-Music2.a */; };
 		5C03CDD7CDB4B6B0BA4239D5 /* libPods-Music2Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 53EB7534DEFD1584A5D523D1 /* libPods-Music2Tests.a */; };
+		CB9989EC275E251000EDA0EA /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9989EB275E251000EDA0EA /* ImageLoader.swift */; };
+		CB9989EF275E266B00EDA0EA /* UIImage+load.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9989EE275E266B00EDA0EA /* UIImage+load.swift */; };
+		CB9989F2275E29C200EDA0EA /* UIImageView+setImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9989F1275E29C200EDA0EA /* UIImageView+setImage.swift */; };
 		CBC4DDDF275763F7005C1EEB /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBC4DDDE275763F7005C1EEB /* APIManager.swift */; };
 		E1D0B595C53451BA83D08D81 /* libPods-Music2-Music2UITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 542B11B4523586132A5F77DB /* libPods-Music2-Music2UITests.a */; };
 /* End PBXBuildFile section */
@@ -201,6 +204,9 @@
 		A5335B3FB9110343BF64BEEC /* Pods-Music2.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Music2.release.xcconfig"; path = "Target Support Files/Pods-Music2/Pods-Music2.release.xcconfig"; sourceTree = "<group>"; };
 		A64C24984202D123F6B81E08 /* libPods-Music2.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Music2.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6A8A01C5308CE95D3ECAD5D /* Pods-Music2Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Music2Tests.release.xcconfig"; path = "Target Support Files/Pods-Music2Tests/Pods-Music2Tests.release.xcconfig"; sourceTree = "<group>"; };
+		CB9989EB275E251000EDA0EA /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
+		CB9989EE275E266B00EDA0EA /* UIImage+load.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+load.swift"; sourceTree = "<group>"; };
+		CB9989F1275E29C200EDA0EA /* UIImageView+setImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+setImage.swift"; sourceTree = "<group>"; };
 		CBC4DDDE275763F7005C1EEB /* APIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIManager.swift; sourceTree = "<group>"; };
 		EEE60D16203B55472D971371 /* Pods-Music2-Music2UITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Music2-Music2UITests.release.xcconfig"; path = "Target Support Files/Pods-Music2-Music2UITests/Pods-Music2-Music2UITests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -356,6 +362,7 @@
 				3638226926BB03BF005B2D1C /* AuthManager.swift */,
 				CBC4DDDE275763F7005C1EEB /* APIManager.swift */,
 				3638226B26BB03CA005B2D1C /* APICaller.swift */,
+				CB9989EB275E251000EDA0EA /* ImageLoader.swift */,
 				3638226D26BB03D8005B2D1C /* HapticsManager.swift */,
 			);
 			path = Manager;
@@ -421,6 +428,8 @@
 				3627AFF126BE3B9D00060E65 /* DateFormatter */,
 				3638226626BAFCE3005B2D1C /* UIColor */,
 				3638227226BB0A9A005B2D1C /* UIView */,
+				CB9989ED275E264D00EDA0EA /* UIImage */,
+				CB9989F0275E29B100EDA0EA /* UIImageView */,
 				36B6E44326BC3DC9005B164B /* UIViewController */,
 			);
 			path = Extension;
@@ -617,6 +626,22 @@
 				36B6E44426BC3DF9005B164B /* UIViewController+alert.swift */,
 			);
 			path = UIViewController;
+			sourceTree = "<group>";
+		};
+		CB9989ED275E264D00EDA0EA /* UIImage */ = {
+			isa = PBXGroup;
+			children = (
+				CB9989EE275E266B00EDA0EA /* UIImage+load.swift */,
+			);
+			path = UIImage;
+			sourceTree = "<group>";
+		};
+		CB9989F0275E29B100EDA0EA /* UIImageView */ = {
+			isa = PBXGroup;
+			children = (
+				CB9989F1275E29C200EDA0EA /* UIImageView+setImage.swift */,
+			);
+			path = UIImageView;
 			sourceTree = "<group>";
 		};
 		F07F91400DD18E3EA91BA348 /* Frameworks */ = {
@@ -857,6 +882,7 @@
 				3651000826BFBB6D00C337ED /* CategoryCollectionViewCell.swift in Sources */,
 				3627AFE226BE1E9700060E65 /* PlaylistCollectionViewCell.swift in Sources */,
 				366DD7C326C153A2006E4817 /* LibraryAlbumResponse.swift in Sources */,
+				CB9989F2275E29C200EDA0EA /* UIImageView+setImage.swift in Sources */,
 				3651003026C06A9E00C337ED /* LibraryToggleView.swift in Sources */,
 				3638224E26BAF992005B2D1C /* LibraryViewController.swift in Sources */,
 				3638226426BAFBC1005B2D1C /* AudioTrack.swift in Sources */,
@@ -870,6 +896,7 @@
 				3638226E26BB03D8005B2D1C /* HapticsManager.swift in Sources */,
 				3627AFE626BE2E4900060E65 /* TitleHeaderCollectionReusableView.swift in Sources */,
 				3627AFCB26BDD28400060E65 /* FeaturedPlaylistCollectionViewCell.swift in Sources */,
+				CB9989EF275E266B00EDA0EA /* UIImage+load.swift in Sources */,
 				3627AFC926BDD23F00060E65 /* NewReleaseCollectionViewCell.swift in Sources */,
 				3627AFF326BE3BB100060E65 /* DateFormatter+displayDateFormatter.swift in Sources */,
 				3651001326BFD9BF00C337ED /* SearchResultsResponse.swift in Sources */,
@@ -896,6 +923,7 @@
 				3651001626BFFF6D00C337ED /* SearchResultDefaultTableViewCell.swift in Sources */,
 				3627AFE926BE32BB00060E65 /* AlbumCollectionViewCell.swift in Sources */,
 				3651000D26BFC3E200C337ED /* CategoryCellViewModel.swift in Sources */,
+				CB9989EC275E251000EDA0EA /* ImageLoader.swift in Sources */,
 				3638225126BAFA1E005B2D1C /* AuthViewController.swift in Sources */,
 				3638226826BAFD04005B2D1C /* UIColor+setting.swift in Sources */,
 				36BFBE1226BBC0AA003C56BD /* AuthResponse.swift in Sources */,

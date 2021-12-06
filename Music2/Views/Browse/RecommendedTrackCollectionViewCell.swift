@@ -45,7 +45,7 @@ class RecommendedTrackCollectionViewCell: UICollectionViewCell {
     }
     
     func configure(with viewModel: RecommendedTrackCellViewModel) {
-        artworkImageView.sd_setImage(with: viewModel.artworkURL, completed: nil)
+        artworkImageView.setImageBy(viewModel.artworkURL)
         trackNameLabel.text = viewModel.name
         artistNameLabel.text = viewModel.artistName
     }

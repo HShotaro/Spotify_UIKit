@@ -49,6 +49,6 @@ class SearchResultDefaultTableViewCell: UITableViewCell {
     
     func configure(with viewModel: SearchResultDefaultTableViewCellViewModel) {
         label.text = viewModel.title
-        iconImageView.sd_setImage(with: viewModel.image, completed: nil)
+        iconImageView.setImageBy(viewModel.image)
     }
 }

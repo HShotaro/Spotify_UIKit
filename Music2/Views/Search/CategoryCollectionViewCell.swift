@@ -66,7 +66,7 @@ class CategoryCollectionViewCell: UICollectionViewCell {
     
     func configure(with category: CategoryCellViewModel) {
         label.text = category.name
-        imageView.sd_setImage(with: category.iconURL, completed: nil)
+        imageView.setImageBy(category.iconURL)
         contentView.backgroundColor = colors.randomElement()
     }
 }

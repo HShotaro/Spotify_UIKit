@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SDWebImage
 
 class ProfileViewController: UIViewController {
     private let tableView: UITableView = {
@@ -69,7 +68,7 @@ class ProfileViewController: UIViewController {
         headerView.addSubview(imageView)
         imageView.center = headerView.center
         imageView.contentMode = .scaleAspectFill
-        imageView.sd_setImage(with: url, completed: nil)
+        imageView.setImageBy(url)
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = imageSize / 2
         tableView.tableHeaderView = headerView

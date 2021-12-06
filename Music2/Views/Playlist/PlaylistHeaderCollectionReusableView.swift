@@ -69,6 +69,6 @@ final class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
     
     func configure(with viewModel: PlaylistHeaderViewViewModel?) {
         nameLabel.text = viewModel?.name
-        imageView.sd_setImage(with: viewModel?.artworkURL, completed: nil)
+        imageView.setImageBy(viewModel?.artworkURL)
     }
 }

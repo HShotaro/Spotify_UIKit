@@ -51,7 +51,7 @@ class PlayerViewController: UIViewController {
     }
     
     func refreshUI(audioTrack: AudioTrack?) {
-        imageView.sd_setImage(with: URL(string: audioTrack?.album?.images?.first?.url ?? ""), completed: nil)
+        imageView.setImageBy(URL(string: audioTrack?.album?.images?.first?.url ?? ""))
         controlsView.configure(with: PlayerControlsViewViewModel(title: audioTrack?.name, subTitle: audioTrack?.artists?.first?.name))
     }
 }
