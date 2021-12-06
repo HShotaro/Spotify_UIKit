@@ -13,8 +13,29 @@ extension UIImageView {
             return
         }
         self.contentMode = contentMode
-        Task(priority: .utility) {
+        let task = Task(priority: .utility) {
             self.image = await ImageLoader.shared.image(url: url, size: size)
+            self.currentTask = nil
+        }
+        self.currentTask = task
+    }
+    
+    func cancelCurrentLoad() {
+        self.currentTask?.cancel()
+        self.currentTask = nil
+        self.image = UIImage(systemName: "photo")
+    }
+}
+
+// 現在画像のロードを実行中のタスクを管理する
+private var valueKey = 0
+extension UIImageView {
+    fileprivate var currentTask: Task<(), Never>? {
+        get {
+            return objc_getAssociatedObject(self, &valueKey) as? Task<(), Never>
+        }
+        set {
+            objc_setAssociatedObject(self, &valueKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
 }

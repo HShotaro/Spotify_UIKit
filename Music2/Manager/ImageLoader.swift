@@ -11,14 +11,15 @@ actor ImageLoader {
     static let shared = ImageLoader()
     private init() {}
     
-    private var cache = [URL: UIImage]()
+    private var imageCache = [URL: UIImage]()
+    
     func image(url: URL, size: CGSize? = nil) async -> UIImage? {
-        if let cached = cache[url] {
+        if let cached = imageCache[url] {
             return cached
         }
         // 連続でこの関数が実行された場合、2回目以降は画像のロードをしたくないためキャッシュにデフォルト値を設定しておく。
-        cache[url] = UIImage(named: "picture")
-        cache[url] = await load(url: url, size: size)
-        return cache[url]
+        imageCache[url] = UIImage(systemName: "photo")
+        imageCache[url] = await load(url: url, size: size)
+        return imageCache[url]
     }
 }

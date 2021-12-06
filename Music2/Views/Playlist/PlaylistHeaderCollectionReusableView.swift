@@ -71,4 +71,9 @@ final class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
         nameLabel.text = viewModel?.name
         imageView.setImageBy(viewModel?.artworkURL)
     }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageView.cancelCurrentLoad()
+    }
 }

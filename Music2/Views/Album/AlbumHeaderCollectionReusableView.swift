@@ -90,4 +90,9 @@ final class AlbumHeaderCollectionReusableView: UICollectionReusableView {
         ownerLabel.text = viewModel?.ownerName
         imageView.setImageBy(viewModel?.artworkURL)
     }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageView.cancelCurrentLoad()
+    }
 }

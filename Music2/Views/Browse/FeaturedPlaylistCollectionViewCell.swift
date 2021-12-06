@@ -76,7 +76,7 @@ class FeaturedPlaylistCollectionViewCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        playlistCoverImageView.image = UIImage(systemName: "photo")
+        playlistCoverImageView.cancelCurrentLoad()
         playlistNameLabel.text = nil
         creatorNameLabel.text = nil
     }

@@ -56,6 +56,7 @@ class CategoryCollectionViewCell: UICollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         label.text = nil
+        imageView.cancelCurrentLoad()
     }
     
     override func layoutSubviews() {

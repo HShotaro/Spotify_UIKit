@@ -43,7 +43,7 @@ class SearchResultDefaultTableViewCell: UITableViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        iconImageView.image = nil
+        iconImageView.cancelCurrentLoad()
         label.text = nil
     }
     

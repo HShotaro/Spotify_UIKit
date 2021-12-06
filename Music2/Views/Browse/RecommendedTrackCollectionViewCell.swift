@@ -74,7 +74,7 @@ class RecommendedTrackCollectionViewCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        artworkImageView.image = UIImage(systemName: "photo")
+        artworkImageView.cancelCurrentLoad()
         trackNameLabel.text = nil
         artistNameLabel.text = nil
     }
