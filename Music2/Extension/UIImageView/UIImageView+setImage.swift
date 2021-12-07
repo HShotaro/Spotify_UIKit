@@ -13,11 +13,11 @@ extension UIImageView {
             return
         }
         self.contentMode = contentMode
-        let task = Task(priority: .utility) {
+        self.currentTask = Task(priority: .utility) {
             self.image = await ImageLoader.shared.image(url: url, size: size)
             self.currentTask = nil
+
         }
-        self.currentTask = task
     }
     
     func cancelCurrentLoad() {

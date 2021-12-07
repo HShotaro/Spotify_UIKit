@@ -41,7 +41,6 @@
 		3638226426BAFBC1005B2D1C /* AudioTrack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3638226326BAFBC1005B2D1C /* AudioTrack.swift */; };
 		3638226826BAFD04005B2D1C /* UIColor+setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3638226726BAFD04005B2D1C /* UIColor+setting.swift */; };
 		3638226A26BB03BF005B2D1C /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3638226926BB03BF005B2D1C /* AuthManager.swift */; };
-		3638226C26BB03CA005B2D1C /* APICaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3638226B26BB03CA005B2D1C /* APICaller.swift */; };
 		3638226E26BB03D8005B2D1C /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3638226D26BB03D8005B2D1C /* HapticsManager.swift */; };
 		3638227126BB06C4005B2D1C /* Secret.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3638227026BB06C4005B2D1C /* Secret.swift */; };
 		3638227426BB0AA9005B2D1C /* UIView+layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3638227326BB0AA9005B2D1C /* UIView+layout.swift */; };
@@ -87,6 +86,7 @@
 		36BFBE1226BBC0AA003C56BD /* AuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BFBE1126BBC0AA003C56BD /* AuthResponse.swift */; };
 		51940056F730C320F9315AD6 /* libPods-Music2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A64C24984202D123F6B81E08 /* libPods-Music2.a */; };
 		5C03CDD7CDB4B6B0BA4239D5 /* libPods-Music2Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 53EB7534DEFD1584A5D523D1 /* libPods-Music2Tests.a */; };
+		CB11EA62275EEC7F00AEDD54 /* Array+string.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB11EA61275EEC7F00AEDD54 /* Array+string.swift */; };
 		CB9989EC275E251000EDA0EA /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9989EB275E251000EDA0EA /* ImageLoader.swift */; };
 		CB9989EF275E266B00EDA0EA /* UIImage+load.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9989EE275E266B00EDA0EA /* UIImage+load.swift */; };
 		CB9989F2275E29C200EDA0EA /* UIImageView+setImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9989F1275E29C200EDA0EA /* UIImageView+setImage.swift */; };
@@ -148,7 +148,6 @@
 		3638226326BAFBC1005B2D1C /* AudioTrack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioTrack.swift; sourceTree = "<group>"; };
 		3638226726BAFD04005B2D1C /* UIColor+setting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+setting.swift"; sourceTree = "<group>"; };
 		3638226926BB03BF005B2D1C /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
-		3638226B26BB03CA005B2D1C /* APICaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APICaller.swift; sourceTree = "<group>"; };
 		3638226D26BB03D8005B2D1C /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		3638227026BB06C4005B2D1C /* Secret.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secret.swift; sourceTree = "<group>"; };
 		3638227326BB0AA9005B2D1C /* UIView+layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+layout.swift"; sourceTree = "<group>"; };
@@ -204,6 +203,7 @@
 		A5335B3FB9110343BF64BEEC /* Pods-Music2.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Music2.release.xcconfig"; path = "Target Support Files/Pods-Music2/Pods-Music2.release.xcconfig"; sourceTree = "<group>"; };
 		A64C24984202D123F6B81E08 /* libPods-Music2.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Music2.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6A8A01C5308CE95D3ECAD5D /* Pods-Music2Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Music2Tests.release.xcconfig"; path = "Target Support Files/Pods-Music2Tests/Pods-Music2Tests.release.xcconfig"; sourceTree = "<group>"; };
+		CB11EA61275EEC7F00AEDD54 /* Array+string.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+string.swift"; sourceTree = "<group>"; };
 		CB9989EB275E251000EDA0EA /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 		CB9989EE275E266B00EDA0EA /* UIImage+load.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+load.swift"; sourceTree = "<group>"; };
 		CB9989F1275E29C200EDA0EA /* UIImageView+setImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+setImage.swift"; sourceTree = "<group>"; };
@@ -361,7 +361,6 @@
 			children = (
 				3638226926BB03BF005B2D1C /* AuthManager.swift */,
 				CBC4DDDE275763F7005C1EEB /* APIManager.swift */,
-				3638226B26BB03CA005B2D1C /* APICaller.swift */,
 				CB9989EB275E251000EDA0EA /* ImageLoader.swift */,
 				3638226D26BB03D8005B2D1C /* HapticsManager.swift */,
 			);
@@ -424,6 +423,7 @@
 		3638226526BAFCDC005B2D1C /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				CB11EA60275EEC7200AEDD54 /* Array */,
 				366DD7C426C15FF9006E4817 /* Notification */,
 				3627AFF126BE3B9D00060E65 /* DateFormatter */,
 				3638226626BAFCE3005B2D1C /* UIColor */,
@@ -626,6 +626,14 @@
 				36B6E44426BC3DF9005B164B /* UIViewController+alert.swift */,
 			);
 			path = UIViewController;
+			sourceTree = "<group>";
+		};
+		CB11EA60275EEC7200AEDD54 /* Array */ = {
+			isa = PBXGroup;
+			children = (
+				CB11EA61275EEC7F00AEDD54 /* Array+string.swift */,
+			);
+			path = Array;
 			sourceTree = "<group>";
 		};
 		CB9989ED275E264D00EDA0EA /* UIImage */ = {
@@ -864,7 +872,6 @@
 				36B6E44526BC3DF9005B164B /* UIViewController+alert.swift in Sources */,
 				3638225726BAFA85005B2D1C /* SettingsViewController.swift in Sources */,
 				3649757E26BC848200440985 /* RecommendationResponse.swift in Sources */,
-				3638226C26BB03CA005B2D1C /* APICaller.swift in Sources */,
 				3651000A26BFC11D00C337ED /* AllCategoriesResponse.swift in Sources */,
 				366DD7C126C10BA3006E4817 /* ArtistViewController.swift in Sources */,
 				3627AFCD26BDD2AF00060E65 /* RecommendedTrackCollectionViewCell.swift in Sources */,
@@ -910,6 +917,7 @@
 				3645CD6A26B311ED0056F604 /* AppDelegate.swift in Sources */,
 				3627AFD226BDE1CD00060E65 /* FeaturedPlaylistCellViewModel.swift in Sources */,
 				3651002026C0077600C337ED /* PlaybackPresenter.swift in Sources */,
+				CB11EA62275EEC7F00AEDD54 /* Array+string.swift in Sources */,
 				3638226226BAFB93005B2D1C /* Playlist.swift in Sources */,
 				3649757526BC771E00440985 /* APIImage.swift in Sources */,
 				3651002B26C0672600C337ED /* LibraryPlaylistsViewController.swift in Sources */,

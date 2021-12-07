@@ -46,6 +46,21 @@ class APIManager {
         }
     }
     
+    private func urlRequest(
+        with url: URL?,
+        type: HTTPMethod,
+        completion: @escaping (URLRequest) -> Void
+    )  {
+        AuthManager.shared.withValidToken { token in
+            guard let apiURL = url else { return }
+            var request = URLRequest(url: apiURL)
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            request.httpMethod = type.rawValue
+            request.timeoutInterval = 30
+            completion(request)
+        }
+    }
+    
     // MARK: - Albums
     
     public func getAlbumDetails(for albumID: String) async throws -> AlbumDetailsResponse {
@@ -446,6 +461,184 @@ class APIManager {
             }
         } catch {
             throw error
+        }
+    }
+    
+    // MARK: - Browse
+    
+    public func getNewReleases() async throws -> NewReleasesResponse {
+        do {
+            let urlRequest = try await urlRequest(with: URL(string: APIManager.baseURL + "/browse/new-releases?limit=50&country=JP"), type: .GET)
+            
+            return try await withCheckedThrowingContinuation { continuation in
+                let task = URLSession.shared.dataTask(with: urlRequest) { data, _, error in
+                    guard let data = data, error == nil else {
+                        continuation.resume(throwing: APIError.httpResponseError)
+                        return
+                    }
+                    do {
+                        let result = try JSONDecoder().decode(NewReleasesResponse.self, from: data)
+                        continuation.resume(returning: result)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                }
+                task.resume()
+            }
+        } catch {
+            throw error
+        }
+    }
+    
+    public func getFeaturedPlaylists() async throws -> FeaturedPlaylistsResponse {
+        do {
+            let urlRequest = try await urlRequest(with: URL(string: APIManager.baseURL + "/browse/featured-playlists?limit=20&country=JP"), type: .GET)
+            
+            return try await withCheckedThrowingContinuation { continuation in
+                let task = URLSession.shared.dataTask(with: urlRequest) { data, _, error in
+                    guard let data = data, error == nil else {
+                        continuation.resume(throwing: APIError.httpResponseError)
+                        return
+                    }
+                    do {
+                        let result = try JSONDecoder().decode(FeaturedPlaylistsResponse.self, from: data)
+                        continuation.resume(returning: result)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                }
+                task.resume()
+            }
+        } catch {
+            throw error
+        }
+    }
+    
+    public func getRecommendations(genres: Set<String>) async throws -> RecommendationResponse {
+        let seeds = genres.joined(separator: ",")
+        do {
+            let urlRequest = try await urlRequest(with: URL(string: APIManager.baseURL + "/recommendations?seed_artists=&seed_genres=\(seeds)&seed_tracks="), type: .GET)
+            
+            return try await withCheckedThrowingContinuation { continuation in
+                let task = URLSession.shared.dataTask(with: urlRequest) { data, _, error in
+                    guard let data = data, error == nil else {
+                        continuation.resume(throwing: APIError.httpResponseError)
+                        return
+                    }
+                    do {
+                        let result = try JSONDecoder().decode(RecommendationResponse.self, from: data)
+                        continuation.resume(returning: result)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                }
+                task.resume()
+            }
+        } catch {
+            throw error
+        }
+    }
+    
+    public func getRecommendationGenres() async throws -> RecommendedGenresResponse {
+        do {
+            let urlRequest = try await urlRequest(with: URL(string: APIManager.baseURL + "/recommendations/available-genre-seeds"), type: .GET)
+            
+            return try await withCheckedThrowingContinuation { continuation in
+                let task = URLSession.shared.dataTask(with: urlRequest) { data, _, error in
+                    guard let data = data, error == nil else {
+                        continuation.resume(throwing: APIError.httpResponseError)
+                        return
+                    }
+                    do {
+                        let result = try JSONDecoder().decode(RecommendedGenresResponse.self, from: data)
+                        continuation.resume(returning: result)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                }
+                task.resume()
+            }
+        } catch {
+            throw error
+        }
+    }
+    
+    // MARK: - Browse by completion handler
+    
+    public func getNewReleases(completion: @escaping ((Result<NewReleasesResponse, Error>)) -> Void) {
+        urlRequest(with: URL(string: APIManager.baseURL + "/browse/new-releases?limit=50&country=JP"), type: .GET) { request in
+            let task = URLSession.shared.dataTask(with: request) { data, _, error in
+                guard let data = data, error == nil else {
+                    completion(.failure(APIError.httpResponseError))
+                    return
+                }
+                do {
+                    let result = try JSONDecoder().decode(NewReleasesResponse.self, from: data)
+                    completion(.success(result))
+                } catch {
+                    print(error.localizedDescription)
+                    completion(.failure(error))
+                }
+            }
+            task.resume()
+        }
+    }
+    
+    public func getFeaturedPlaylists(completion: @escaping ((Result<FeaturedPlaylistsResponse, Error>) -> Void)) {
+        urlRequest(with: URL(string: APIManager.baseURL + "/browse/featured-playlists?limit=20&country=JP"), type: .GET) { request in
+            let task = URLSession.shared.dataTask(with: request) { data, _, error in
+                guard let data = data, error == nil else {
+                    completion(.failure(APIError.httpResponseError))
+                    return
+                }
+                do {
+                    let result = try JSONDecoder().decode(FeaturedPlaylistsResponse.self, from: data)
+                    completion(.success(result))
+                } catch {
+                    print(error.localizedDescription)
+                    completion(.failure(error))
+                }
+            }
+            task.resume()
+        }
+    }
+    
+    public func getRecommendations(genres: Set<String>, completion: @escaping ((Result<RecommendationResponse, Error>) -> Void)) {
+        let seeds = genres.joined(separator: ",")
+        urlRequest(with: URL(string: APIManager.baseURL + "/recommendations?seed_artists=&seed_genres=\(seeds)&seed_tracks="), type: .GET) { request in
+            let task = URLSession.shared.dataTask(with: request) { data, _, error in
+                guard let data = data, error == nil else {
+                    completion(.failure(APIError.httpResponseError))
+                    return
+                }
+                do {
+                    let result = try JSONDecoder().decode(RecommendationResponse.self, from: data)
+                    completion(.success(result))
+                } catch {
+                    print(error.localizedDescription)
+                    completion(.failure(error))
+                }
+            }
+            task.resume()
+        }
+    }
+    
+    public func getRecommendationGenres(completion: @escaping ((Result<RecommendedGenresResponse, Error>) -> Void)) {
+        urlRequest(with: URL(string: APIManager.baseURL + "/recommendations/available-genre-seeds"), type: .GET) { request in
+            let task = URLSession.shared.dataTask(with: request) { data, _, error in
+                guard let data = data, error == nil else {
+                    completion(.failure(APIError.httpResponseError))
+                    return
+                }
+                do {
+                    let result = try JSONDecoder().decode(RecommendedGenresResponse.self, from: data)
+                    completion(.success(result))
+                } catch {
+                    print(error.localizedDescription)
+                    completion(.failure(error))
+                }
+            }
+            task.resume()
         }
     }
 }

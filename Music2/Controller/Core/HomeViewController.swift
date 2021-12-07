@@ -24,7 +24,7 @@ class HomeViewController: UIViewController {
             }
         }
     }
-    var sections = [BrowseSectionType]()
+    var sectionModels = [BrowseSectionType]()
     
     private var collectionView : UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewCompositionalLayout { section, _ -> NSCollectionLayoutSection in
         return HomeViewController.createSectionLayout(section: section)
@@ -46,7 +46,7 @@ class HomeViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "gear"), style: .done, target: self, action: #selector(didTapSettings)
         )
         configureCollectionView()
-        fetchData()
+        fetchDataByAsyncLet()
     }
     
     override func viewWillLayoutSubviews() {
@@ -144,7 +144,89 @@ class HomeViewController: UIViewController {
         }
     }
     
-    private func fetchData() {
+    private func fetchDataByAsyncLet() {
+        Task {
+            do {
+                async let recommendationGenres = APIManager.shared.getRecommendationGenres()
+                async let newReleases = APIManager.shared.getNewReleases()
+                async let featuredPlayLists = APIManager.shared.getFeaturedPlaylists()
+                let genres = try await recommendationGenres.genres.toRandomSet(numberOfElements: 5)
+                async let recommendationTracks = APIManager.shared.getRecommendations(genres: genres)
+                try await self.configureModels(newAlbums: newReleases.albums.items, playlists: featuredPlayLists.playlists.items, tracks: recommendationTracks.tracks)
+                DispatchQueue.main.async { [weak self] in
+                    self?.collectionView.reloadData()
+                }
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
+                    self?.fetchDataByAsyncLet()
+                })
+                DispatchQueue.main.async { [weak self] in
+                    self?.present(alert, animated: true, completion: nil)
+                }
+            }
+        }
+    }
+    
+    private func fetchDataByTaskGroup() {
+        Task {
+            var newReleases = [NewReleasesCellViewModel]()
+            var featuredPlaylists = [FeaturedPlaylistCellViewModel]()
+            var recommendationTracks = [RecommendedTrackCellViewModel]()
+            do {
+                let sectionModels = try await withThrowingTaskGroup(of: BrowseSectionType.self) { group -> [BrowseSectionType] in
+                    group.addTask {
+                        let newAlbums = try await APIManager.shared.getNewReleases().albums.items
+                        return BrowseSectionType.newReleases(viewModels: newAlbums.compactMap({ album in
+                            return NewReleasesCellViewModel(name: album.name, artworkURL: URL(string: album.images?.first?.url ?? ""), numberOfTracks: album.total_tracks ?? 0, artistName: album.artists?.first?.name ?? "-")
+                        }))
+                    }
+                    group.addTask {
+                        let playlists = try await APIManager.shared.getFeaturedPlaylists().playlists.items
+                        return BrowseSectionType.featuredPlaylists(viewModels: playlists.compactMap({ playlist in
+                            return FeaturedPlaylistCellViewModel(playlistID: playlist.id, name: playlist.name, artworkURL: URL(string: playlist.images?.first?.url ?? ""), creatorName: playlist.owner?.display_name ?? "")
+                        }))
+                    }
+                    group.addTask {
+                        let genres = try await APIManager.shared.getRecommendationGenres().genres.toRandomSet(numberOfElements: 5)
+                        let tracks = try await APIManager.shared.getRecommendations(genres: genres).tracks
+                        return BrowseSectionType.recommendedTracks(viewModels: tracks.compactMap({ audioTrack in
+                            return RecommendedTrackCellViewModel(name: audioTrack.name, artistName: audioTrack.artists?.first?.name ?? "-", artworkURL: URL(string: audioTrack.album?.images?.first?.url ?? ""))
+                        }))
+                    }
+                    
+                    for try await sectionModel in group {
+                        switch sectionModel {
+                        case .newReleases(let viewModels):
+                            newReleases = viewModels
+                        case .featuredPlaylists(let viewModels):
+                            featuredPlaylists = viewModels
+                        case .recommendedTracks(let viewModels):
+                            recommendationTracks = viewModels
+                        }
+                    }
+                    return [
+                        BrowseSectionType.newReleases(viewModels: newReleases),
+                        BrowseSectionType.featuredPlaylists(viewModels: featuredPlaylists),
+                        BrowseSectionType.recommendedTracks(viewModels: recommendationTracks)
+                    ]
+                }
+                
+                self.sectionModels = sectionModels
+                DispatchQueue.main.async { [weak self] in
+                    self?.collectionView.reloadData()
+                }
+            } catch {
+                let alert = self.generateAlert(error: error, retryHandler: { [weak self] in
+                    self?.fetchDataByTaskGroup()
+                })
+                DispatchQueue.main.async { [weak self] in
+                    self?.present(alert, animated: true, completion: nil)
+                }
+            }
+        }
+    }
+    
+    private func fetchDataByDispatchGroup() {
         let group = DispatchGroup()
         group.enter()
         group.enter()
@@ -155,7 +237,7 @@ class HomeViewController: UIViewController {
         var recommendations: RecommendationResponse?
         
         // New Releases
-        APICaller.shared.getNewReleases { [weak self] result in
+        APIManager.shared.getNewReleases { [weak self] result in
             defer {
                 group.leave()
             }
@@ -164,14 +246,16 @@ class HomeViewController: UIViewController {
                 newReleases = model
             case let .failure(error):
                 guard let alert = self?.generateAlert(error: error, retryHandler: {
-                    self?.fetchData()
+                    self?.fetchDataByDispatchGroup()
                 }) else { return }
-                self?.present(alert, animated: true, completion: nil)
+                DispatchQueue.main.async { [weak self] in
+                    self?.present(alert, animated: true, completion: nil)
+                }
             }
         }
         
         // Featured Playlists
-        APICaller.shared.getFeaturedPlaylists { [weak self] result in
+        APIManager.shared.getFeaturedPlaylists { [weak self] result in
             defer {
                 group.leave()
             }
@@ -180,24 +264,20 @@ class HomeViewController: UIViewController {
                 featuredPlayLists = model
             case let .failure(error):
                 guard let alert = self?.generateAlert(error: error, retryHandler: {
-                    self?.fetchData()
+                    self?.fetchDataByDispatchGroup()
                 }) else { return }
-                self?.present(alert, animated: true, completion: nil)
+                DispatchQueue.main.async { [weak self] in
+                    self?.present(alert, animated: true, completion: nil)
+                }
             }
         }
         // Recommended Tracks
-        APICaller.shared.getRecommendationGenres { [weak self] result in
+        APIManager.shared.getRecommendationGenres { [weak self] result in
             switch result {
             case let .success(model):
-                let genres = model.genres
-                var seeds = Set<String>()
-                while seeds.count < 5 {
-                    if let random = genres.randomElement() {
-                        seeds.insert(random)
-                    }
-                }
+                let genres = model.genres.toRandomSet(numberOfElements: 5)
                 
-                APICaller.shared.getRecommendations(genres: seeds) { result in
+                APIManager.shared.getRecommendations(genres: genres) { result in
                     defer {
                         group.leave()
                     }
@@ -206,16 +286,20 @@ class HomeViewController: UIViewController {
                         recommendations = model
                     case let .failure(error):
                         guard let alert = self?.generateAlert(error: error, retryHandler: {
-                            self?.fetchData()
+                            self?.fetchDataByDispatchGroup()
                         }) else { return }
-                        self?.present(alert, animated: true, completion: nil)
+                        DispatchQueue.main.async { [weak self] in
+                            self?.present(alert, animated: true, completion: nil)
+                        }
                     }
                 }
             case let .failure(error):
                 guard let alert = self?.generateAlert(error: error, retryHandler: {
-                    self?.fetchData()
+                    self?.fetchDataByDispatchGroup()
                 }) else { return }
-                self?.present(alert, animated: true, completion: nil)
+                DispatchQueue.main.async { [weak self] in
+                    self?.present(alert, animated: true, completion: nil)
+                }
             }
             
             group.notify(queue: .main) {
@@ -226,6 +310,9 @@ class HomeViewController: UIViewController {
                 }
                 
                 self?.configureModels(newAlbums: albums, playlists: playlists, tracks: tracks)
+                DispatchQueue.main.async { [weak self] in
+                    self?.collectionView.reloadData()
+                }
             }
     
         }
@@ -241,7 +328,7 @@ class HomeViewController: UIViewController {
     ) {
         self.newAlbums = newAlbums
         self.tracks = tracks
-        self.sections = [
+        self.sectionModels = [
             .newReleases(viewModels: newAlbums.compactMap({ album in
                 return NewReleasesCellViewModel(name: album.name, artworkURL: URL(string: album.images?.first?.url ?? ""), numberOfTracks: album.total_tracks ?? 0, artistName: album.artists?.first?.name ?? "-")
             })),
@@ -252,8 +339,6 @@ class HomeViewController: UIViewController {
                 return RecommendedTrackCellViewModel(name: audioTrack.name, artistName: audioTrack.artists?.first?.name ?? "-", artworkURL: URL(string: audioTrack.album?.images?.first?.url ?? ""))
             }))
         ]
-        
-        collectionView.reloadData()
     }
 
     @objc private func didTapSettings() {
@@ -266,10 +351,10 @@ class HomeViewController: UIViewController {
 
 extension HomeViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return sections.count
+        return sectionModels.count
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        switch sections[section] {
+        switch sectionModels[section] {
         case let .newReleases(viewModels):
             return viewModels.count
         case let .featuredPlaylists(viewModels):
@@ -281,7 +366,7 @@ extension HomeViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        switch sections[indexPath.section] {
+        switch sectionModels[indexPath.section] {
         case let .newReleases(viewModels):
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NewReleaseCollectionViewCell.identifier, for: indexPath) as? NewReleaseCollectionViewCell else { return UICollectionViewCell() }
             let viewModel = viewModels[indexPath.row]
@@ -302,7 +387,7 @@ extension HomeViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: TitleHeaderCollectionReusableView.identifier, for: indexPath) as? TitleHeaderCollectionReusableView, kind == UICollectionView.elementKindSectionHeader else { return UICollectionReusableView() }
-        header.configure(with: sections[indexPath.section].title)
+        header.configure(with: sectionModels[indexPath.section].title)
         return header
     }
 }
@@ -311,7 +396,7 @@ extension HomeViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         HapticsManager.shared.vibrateForSelection()
-        switch sections[indexPath.section] {
+        switch sectionModels[indexPath.section] {
         case .newReleases:
             let album = newAlbums[indexPath.row]
             let vc = AlbumViewController(album: album)
