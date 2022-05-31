@@ -8,39 +8,47 @@
 import UIKit
 
 class TabBarController: UITabBarController {
+    enum TabType: Int, CaseIterable {
+    case home = 0
+    case search
+    case library
+        
+        func translateToViewController() -> UIViewController {
+            switch self {
+            case .home:
+                let vc = HomeViewController()
+                vc.title = "Browse"
+                return vc
+            case .search:
+                let vc = SearchViewController()
+                vc.title = "Search"
+                return vc
+            case .library:
+                let vc = LibraryViewController()
+                vc.title = "Library"
+                return vc
+            }
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let vc1 = HomeViewController()
-        let vc2 = SearchViewController()
-        let vc3 = LibraryViewController()
         
-        vc1.title = "Browse"
-        vc2.title = "Search"
-        vc3.title = "Library"
+        let navs: [UIViewController] = TabBarController.TabType.allCases.map { t in
+            let vc = t.translateToViewController()
+            let nav = NavigationController(rootViewController: vc)
+            switch t {
+            case .home:
+                nav.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"), tag: 0)
+            case .search:
+                nav.tabBarItem = UITabBarItem(title: "Search", image: UIImage(systemName: "magnifyingglass"), tag: 1)
+            case .library:
+                nav.tabBarItem = UITabBarItem(title: "Library", image: UIImage(systemName: "music.note.list"), tag: 2)
+            }
+            return nav
+        }
         
-        let nav1 = NavigationController.init(rootViewController: vc1)
-        let nav2 = NavigationController.init(rootViewController: vc2)
-        let nav3 = NavigationController.init(rootViewController: vc3)
-        
-        
-        
-        nav1.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"), tag: 0)
-        nav2.tabBarItem = UITabBarItem(title: "Search", image: UIImage(systemName: "magnifyingglass"), tag: 1)
-        nav3.tabBarItem = UITabBarItem(title: "Library", image: UIImage(systemName: "music.note.list"), tag: 2)
-        
-        setViewControllers([nav1, nav2, nav3], animated: false)
+        setViewControllers(navs, animated: false)
+        self.tabBar.isHidden = UIDevice.current.userInterfaceIdiom == .pad
     }
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }

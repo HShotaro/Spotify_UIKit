@@ -15,28 +15,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        
-        let window = UIWindow(frame: UIScreen.main.bounds)
-        
-        if AuthManager.shared.isSignIn {
-            AuthManager.shared.refreshIfNeeded(completion: nil)
-            window.rootViewController = TabBarController()
-        } else {
-            let navVC = NavigationController(rootViewController: WelcomeViewController())
-            navVC.navigationBar.prefersLargeTitles = true
-            navVC.viewControllers.first?.navigationItem.largeTitleDisplayMode = .always
-            window.rootViewController = navVC
-        }
-        
         // MARK: 音楽再生モード設定
         let session = AVAudioSession.sharedInstance()
-                do {
-                    try session.setCategory(.playback, mode: .default)
-                    try session.setActive(true)
-                } catch  {
-                    fatalError("音楽再生モード設定失敗")
-                }
+        do {
+            try session.setCategory(.playback, mode: .default)
+            try session.setActive(true)
+        } catch  {
+            fatalError("音楽再生モード設定失敗")
+        }
         
+        let window = UIWindow(frame: UIScreen.main.bounds)
         window.makeKeyAndVisible()
         self.window = window
         return true

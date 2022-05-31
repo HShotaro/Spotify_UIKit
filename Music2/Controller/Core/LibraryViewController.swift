@@ -29,31 +29,31 @@ class LibraryViewController: UIViewController {
         toggleView.delegate = self
         scrollView.delegate = self
         view.addSubview(scrollView)
-        scrollView.contentSize = CGSize(width: view.width*2, height: scrollView.height)
         addChildren()
         updateBarButtons()
     }
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
+        scrollView.contentSize = CGSize(width: view.width*2, height: scrollView.height)
         scrollView.frame = CGRect(
             x: 0,
             y: view.safeAreaInsets.top+47,
             width: view.width,
             height: view.height-view.safeAreaInsets.top - view.safeAreaInsets.bottom-47
         )
+        playlistsVC.view.frame = CGRect(x: 0, y: 0, width: scrollView.width, height: scrollView.height)
+        albumsVC.view.frame = CGRect(x: view.width, y: 0, width: scrollView.width, height: scrollView.height)
         toggleView.frame = CGRect(x: 0, y: view.safeAreaInsets.top, width: 200, height: 47)
     }
     
     private func addChildren() {
         addChild(playlistsVC)
         scrollView.addSubview(playlistsVC.view)
-        playlistsVC.view.frame = CGRect(x: 0, y: 0, width: scrollView.width, height: scrollView.height)
         playlistsVC.didMove(toParent: self)
         
         addChild(albumsVC)
         scrollView.addSubview(albumsVC.view)
-        albumsVC.view.frame = CGRect(x: view.width, y: 0, width: scrollView.width, height: scrollView.height)
         albumsVC.didMove(toParent: self)
     }
     

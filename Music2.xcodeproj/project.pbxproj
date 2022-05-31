@@ -87,6 +87,10 @@
 		51940056F730C320F9315AD6 /* libPods-Music2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A64C24984202D123F6B81E08 /* libPods-Music2.a */; };
 		5C03CDD7CDB4B6B0BA4239D5 /* libPods-Music2Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 53EB7534DEFD1584A5D523D1 /* libPods-Music2Tests.a */; };
 		CB11EA62275EEC7F00AEDD54 /* Array+string.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB11EA61275EEC7F00AEDD54 /* Array+string.swift */; };
+		CB535FBE2837216E00108403 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB535FBD2837216E00108403 /* SplitViewController.swift */; };
+		CB535FC12837532D00108403 /* UIApplication+rootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB535FC02837532D00108403 /* UIApplication+rootViewController.swift */; };
+		CB535FC32837575B00108403 /* SidebarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB535FC22837575B00108403 /* SidebarViewController.swift */; };
+		CB535FC528375C2200108403 /* UIApplication+window.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB535FC428375C2200108403 /* UIApplication+window.swift */; };
 		CB9989EC275E251000EDA0EA /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9989EB275E251000EDA0EA /* ImageLoader.swift */; };
 		CB9989EF275E266B00EDA0EA /* UIImage+load.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9989EE275E266B00EDA0EA /* UIImage+load.swift */; };
 		CB9989F2275E29C200EDA0EA /* UIImageView+setImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9989F1275E29C200EDA0EA /* UIImageView+setImage.swift */; };
@@ -204,6 +208,10 @@
 		A64C24984202D123F6B81E08 /* libPods-Music2.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Music2.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6A8A01C5308CE95D3ECAD5D /* Pods-Music2Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Music2Tests.release.xcconfig"; path = "Target Support Files/Pods-Music2Tests/Pods-Music2Tests.release.xcconfig"; sourceTree = "<group>"; };
 		CB11EA61275EEC7F00AEDD54 /* Array+string.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+string.swift"; sourceTree = "<group>"; };
+		CB535FBD2837216E00108403 /* SplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
+		CB535FC02837532D00108403 /* UIApplication+rootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+rootViewController.swift"; sourceTree = "<group>"; };
+		CB535FC22837575B00108403 /* SidebarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarViewController.swift; sourceTree = "<group>"; };
+		CB535FC428375C2200108403 /* UIApplication+window.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+window.swift"; sourceTree = "<group>"; };
 		CB9989EB275E251000EDA0EA /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 		CB9989EE275E266B00EDA0EA /* UIImage+load.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+load.swift"; sourceTree = "<group>"; };
 		CB9989F1275E29C200EDA0EA /* UIImageView+setImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+setImage.swift"; sourceTree = "<group>"; };
@@ -322,6 +330,8 @@
 			children = (
 				3638224726BAF8F2005B2D1C /* TabBarController.swift */,
 				3638224926BAF957005B2D1C /* NavigationController.swift */,
+				CB535FC22837575B00108403 /* SidebarViewController.swift */,
+				CB535FBD2837216E00108403 /* SplitViewController.swift */,
 				3638225326BAFA3B005B2D1C /* Other */,
 				3638225226BAFA36005B2D1C /* Core */,
 			);
@@ -423,6 +433,7 @@
 		3638226526BAFCDC005B2D1C /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				CB535FBF2837531E00108403 /* UIApplication */,
 				CB11EA60275EEC7200AEDD54 /* Array */,
 				366DD7C426C15FF9006E4817 /* Notification */,
 				3627AFF126BE3B9D00060E65 /* DateFormatter */,
@@ -634,6 +645,15 @@
 				CB11EA61275EEC7F00AEDD54 /* Array+string.swift */,
 			);
 			path = Array;
+			sourceTree = "<group>";
+		};
+		CB535FBF2837531E00108403 /* UIApplication */ = {
+			isa = PBXGroup;
+			children = (
+				CB535FC02837532D00108403 /* UIApplication+rootViewController.swift */,
+				CB535FC428375C2200108403 /* UIApplication+window.swift */,
+			);
+			path = UIApplication;
 			sourceTree = "<group>";
 		};
 		CB9989ED275E264D00EDA0EA /* UIImage */ = {
@@ -878,6 +898,7 @@
 				3638225D26BAFAE6005B2D1C /* PlayerViewController.swift in Sources */,
 				3627AFF026BE35CA00060E65 /* AlbumHeaderViewViewModel.swift in Sources */,
 				3651002D26C0673600C337ED /* LibraryAlbumsViewController.swift in Sources */,
+				CB535FBE2837216E00108403 /* SplitViewController.swift in Sources */,
 				3651001B26C0044A00C337ED /* SearchResultSubtitleTableViewCell.swift in Sources */,
 				366DD7C626C16013006E4817 /* Notification.Name+saveAlbum.swift in Sources */,
 				3638224C26BAF976005B2D1C /* SearchViewController.swift in Sources */,
@@ -908,9 +929,11 @@
 				3627AFF326BE3BB100060E65 /* DateFormatter+displayDateFormatter.swift in Sources */,
 				3651001326BFD9BF00C337ED /* SearchResultsResponse.swift in Sources */,
 				3627AFEE26BE357F00060E65 /* AlbumHeaderCollectionReusableView.swift in Sources */,
+				CB535FC32837575B00108403 /* SidebarViewController.swift in Sources */,
 				3638225F26BAFB05005B2D1C /* SearchResultViewController.swift in Sources */,
 				3651000F26BFC93400C337ED /* CategoryPlayListResponse.swift in Sources */,
 				36B6E44026BC25FB005B164B /* User.swift in Sources */,
+				CB535FC12837532D00108403 /* UIApplication+rootViewController.swift in Sources */,
 				3638224A26BAF957005B2D1C /* NavigationController.swift in Sources */,
 				3638225926BAFA9E005B2D1C /* ProfileViewController.swift in Sources */,
 				3649757326BC75C100440985 /* NewReleasesResponse.swift in Sources */,
@@ -940,6 +963,7 @@
 				3651002826C04F8000C337ED /* ArtistTopTracksDataResponse.swift in Sources */,
 				CBC4DDDF275763F7005C1EEB /* APIManager.swift in Sources */,
 				3627AFDD26BE117300060E65 /* PlaylistHeaderCollectionReusableView.swift in Sources */,
+				CB535FC528375C2200108403 /* UIApplication+window.swift in Sources */,
 				3645CD6C26B311ED0056F604 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1112,6 +1136,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = QJRD886PU2;
 				INFOPLIST_FILE = Music2/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1132,6 +1157,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = QJRD886PU2;
 				INFOPLIST_FILE = Music2/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

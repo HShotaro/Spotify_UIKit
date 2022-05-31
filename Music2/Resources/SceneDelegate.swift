@@ -11,14 +11,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
         
         if AuthManager.shared.isSignIn {
-            window.rootViewController = TabBarController()
+            AuthManager.shared.refreshIfNeeded(completion: nil)
+            window.rootViewController = UIApplication.rootViewController()
+            
         } else {
             let navVC = NavigationController(rootViewController: WelcomeViewController())
             navVC.navigationBar.prefersLargeTitles = true
